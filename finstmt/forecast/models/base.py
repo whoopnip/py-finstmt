@@ -73,7 +73,7 @@ class ForecastModel:
             start=self.last_historical_period,
             periods=self.config.periods + 1,
             freq=self.config.freq,
-            closed="right",
+            closed="frequency",
         )
 
     @property
