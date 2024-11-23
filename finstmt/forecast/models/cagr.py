@@ -91,6 +91,6 @@ class CAGRModel(ForecastModel):
                 last_value = next_value
             past_df[col_name] = past_values
 
-        self.result_df = past_df.append(future_df).sort_index()
+        self.result_df = pd.concat([past_df, future_df]).sort_index()
         super().predict()
         return self.result
