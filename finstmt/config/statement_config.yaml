@@ -31,10 +31,28 @@ statements:
           - total cash st investments
           - total cash and st investments
           - total cash and shortterm investments
+          - total cash and short term investments
+          - total cash shortterm investments
+          - total cash short term investments
           - total cash st invest
+          - total cash and st invest
+          - total cash and shortterm invest
+          - total cash and short term invest
+          - total cash shortterm invest
+          - total cash short term invest
           - cash st investments
           - cash and st investments
+          - cash and shortterm investments
+          - cash and short term investments
+          - cash shortterm investments
+          - cash short term investments
           - cash st invest
+          - cash and st invest
+          - cash and shortterm invest
+          - cash and short term invest
+          - cash shortterm invest
+          - cash short term invest
+
         expr_str: "cash[t] + st_invest[t]"
         forecast:
           make_forecast: false
