@@ -52,28 +52,19 @@ class FinancialStatements:
     _combinator: StatementsCombinator[Self] = FinancialStatementsCombinator()  # type: ignore[assignment]
 
     def __post_init__(self):
-        from finstmt.resolver.history import StatementsResolver
+        self.initialize_namespace()
+        self.resolve_expressions()
+        self.update_statements()
+        self.resolve_statements()
 
-        # initialize global sympy namespace
+    def initialize_namespace(self):
         t = symbols("t", cls=Idx)
         self.global_sympy_namespace = {"t": t}
-        # First loop through and build a namespace
+
         for stmt in self.statements:
             for config in stmt.items_config_list:
                 expr = IndexedBase(config.key)
                 self.global_sympy_namespace.update({config.key: expr})
-
-        self.resolve_expressions()
-
-        self._create_config_from_statements()
-
-        if self.calculate:
-            resolver = StatementsResolver(self)
-            new_stmts = resolver.to_statements(
-                auto_adjust_config=self.auto_adjust_config
-            )
-            self.statements = new_stmts.statements
-            self._create_config_from_statements()
 
     def resolve_expressions(self):
         eqns = []
@@ -98,6 +89,21 @@ class FinancialStatements:
                 stmt.update_statement_item_calculated_value(
                     statement_item_key, period_index, statement_item_value
                 )
+
+    def update_statements(self):
+        for stmt in self.statements:
+            stmt.df = stmt.to_df()
+
+    def resolve_statements(self):
+        from finstmt.resolver.history import StatementsResolver
+
+        self._create_config_from_statements()
+
+        if self.calculate:
+            resolver = StatementsResolver(self)
+            new_stmts = resolver.to_statements(auto_adjust_config=self.auto_adjust_config)
+            self.statements = new_stmts.statements
+            self._create_config_from_statements()
 
     def _create_config_from_statements(self):
         config_dict = {}
@@ -377,3 +383,100 @@ class FinancialStatements:
             )
 
         return cls(stmts)
+
+    @classmethod
+    def from_yaml_config(cls, df: pd.DataFrame, config_path: str, disp_unextracted: bool = True):
+        """
+        Create FinancialStatements from DataFrame using YAML config file
+        
+        :param df: DataFrame with financial data
+        :param config_path: Path to YAML config file
+        :param disp_unextracted: Whether to display unextracted items
+        :return: FinancialStatements object
+        """
+        from finstmt.config.config_loader import load_yaml_config
+        statement_configs = load_yaml_config(config_path)
+        return cls.from_df(df, statement_configs, disp_unextracted)
+
+    def to_excel(self, filepath: str, separate_sheets: bool = True) -> None:
+        """
+        Save the financial statements to an Excel file with statement headers.
+        
+        :param filepath: Path where the Excel file should be saved
+        :param separate_sheets: If True, creates separate sheet for each statement. 
+                              If False, combines all statements into one sheet
+        """
+        with pd.ExcelWriter(filepath, engine='xlsxwriter') as writer:
+            workbook = writer.book
+            money_fmt = workbook.add_format({
+                'num_format': '$#,##0',
+                'align': 'right'
+            })
+            header_fmt = workbook.add_format({
+                'bold': True,
+                'align': 'center'
+            })
+            title_fmt = workbook.add_format({
+                'bold': True,
+                'font_size': 14,
+                'align': 'left'
+            })
+            
+            if separate_sheets:
+                for stmt in self.statements:
+                    df = stmt.df.copy()
+                    df.fillna(0, inplace=True)
+                    df.columns = [pd.to_datetime(col).strftime("%m/%d/%Y") for col in df.columns]
+                    
+                    sheet_name = stmt.statement_name
+                    # Write statement name first, then data starting one row down
+                    df.to_excel(writer, sheet_name=sheet_name, startrow=1)
+                    
+                    worksheet = writer.sheets[sheet_name]
+                    worksheet.write(0, 0, sheet_name, title_fmt)
+                    
+                    for idx, col in enumerate(df.columns, start=1):
+                        worksheet.set_column(idx, idx, 15, money_fmt)
+                    
+                    worksheet.set_row(1, None, header_fmt)  # Headers now on row 1 instead of 0
+                    worksheet.set_column(0, 0, 30)
+            else:
+                all_dfs = []
+                current_row = 0
+                
+                for stmt in self.statements:
+                    df = stmt.df.copy()
+                    df.fillna(0, inplace=True)
+                    df.index = [f"{idx}" for idx in df.index]  # Don't need statement prefix in index anymore
+                    all_dfs.append((stmt.statement_name, df))
+                
+                # Create single worksheet
+                worksheet = workbook.add_worksheet('Financial Statements')
+                
+                # Write each statement with its header
+                for stmt_name, df in all_dfs:
+                    # Write statement header
+                    worksheet.write(current_row, 0, stmt_name, title_fmt)
+                    current_row += 1
+                    
+                    # Convert df to formatted dates
+                    df.columns = [pd.to_datetime(col).strftime("%m/%d/%Y") for col in df.columns]
+                    
+                    # Write column headers
+                    for idx, col in enumerate(df.columns):
+                        worksheet.write(current_row, idx + 1, col, header_fmt)
+                    
+                    # Write index
+                    for idx, row in enumerate(df.index):
+                        worksheet.write(current_row + 1 + idx, 0, row)
+                    
+                    # Write data
+                    for row_idx, row in enumerate(df.values):
+                        for col_idx, value in enumerate(row):
+                            worksheet.write(current_row + 1 + row_idx, col_idx + 1, value, money_fmt)
+                    
+                    current_row += len(df.index) + 2  # Move past data plus add a blank row
+                
+                # Set column widths
+                worksheet.set_column(0, 0, 30)  # First column wider for labels
+                worksheet.set_column(1, len(df.columns), 15)  # Data columns
