@@ -5,9 +5,9 @@ statements:
       - key: cash
         display_name: "Cash and Cash Equivalents"
         extract_names:
-          - cash
-          - cash and cash equivalents
+          - cashalents
           - cash and equivalents
+          - cash and cash equiv
           - cash and equiv
           - cash cash equivalents
           - cash equivalents
@@ -85,6 +85,30 @@ statements:
           - def tax assets curr
           - deferred tax assets curr
           - tax assets curr
+          - def tax asset current
+          - deferred tax asset current
+          - tax asset current
+          - def tax assets current
+          - deferred tax assets current
+          - tax assets current
+          - def tax asset short term
+          - deferred tax asset short term
+          - tax asset short term
+          - def tax assets short term
+          - deferred tax assets short term
+          - tax assets short term
+          - def tax asset shortterm
+          - deferred tax asset shortterm
+          - tax asset shortterm
+          - def tax assets shortterm
+          - deferred tax assets shortterm
+          - tax assets shortterm
+          - def tax asset st
+          - deferred tax asset st
+          - tax asset st
+          - def tax assets st
+          - deferred tax assets st
+          - tax assets st
 
       - key: other_current_assets
         display_name: "Other Current Assets"
@@ -116,6 +140,9 @@ statements:
           - grs ppe
           - grs property plant equipment
           - grs property plant and equipment
+          - ppe grs
+          - property plant equipment grs
+          - property plant and equipment grs
 
       - key: dep
         display_name: "Accumulated Depreciation"
@@ -154,9 +181,10 @@ statements:
           - goodwill intangible assets
           - goodwill intangibles
           - goodwill total
-          - intangible assets
-          - intangibles
-          - intangible assets total
+          - goodwill and intangible assets total
+          - goodwill and intangibles total
+          - goodwill intangible assets total
+          - goodwill intangibles total
 
       - key: lt_invest
         display_name: "Long-Term Investments"
@@ -171,27 +199,38 @@ statements:
       - key: def_tax_lt
         display_name: "Deferred Tax Assets, Long-Term"
         extract_names:
-          - def tax asset long term
-          - deferred tax asset long term
-          - tax asset long term
-          - def tax assets long term
-          - deferred tax assets long term
-          - tax assets long term
-          - def tax asset longterm
-          - def tax asset lt
-          - deferred tax asset lt
-          - tax asset lt
-          - tax assets lt
-          - def tax asset
-          - deferred tax asset
-          - tax asset
-          - def tax assets
-          - deferred tax assets
-          - tax assets
-          - deferred tax
-          - def tax
-          - deferred taxes
-          - def taxes
+          - def tax asset long term",
+          - deferred tax asset long term",
+          - tax asset long term",
+          - def tax assets long term",
+          - deferred tax assets long term",
+          - tax assets long term",
+          - def tax asset longterm",
+          - deferred tax asset longterm",
+          - tax asset longterm",
+          - def tax assets longterm",
+          - deferred tax assets longterm",
+          - tax assets longterm",
+          - def tax asset lt",
+          - deferred tax asset lt",
+          - tax asset lt",
+          - def tax assets lt",
+          - deferred tax assets lt",
+          - tax assets lt",
+          - def tax asset",
+          - deferred tax asset",
+          - tax asset",
+          - def tax assets",
+          - deferred tax assets",
+          - tax assets",
+          - long term assets tax deferred",
+          - lt assets tax deferred",
+          - lt assets tax def",
+          - long term assets tax def",
+          - long term assets deferred tax",
+          - lt assets deferred tax",
+          - lt assets def tax",
+          - long term assets def tax",
 
       - key: other_lt_assets
         display_name: "Other Long-Term Assets"
@@ -202,6 +241,12 @@ statements:
           - other longterm asset
           - other long term assets
           - other long term asset
+          - lt assets other
+          - lt asset other
+          - longterm assets other
+          - longterm asset other
+          - long term assets other
+          - long term asset other
 
       - key: total_non_current_assets
         display_name: "Total Non-Current Assets"
@@ -234,6 +279,21 @@ statements:
           - accounts payable
           - ap
           - payables and accrued expenses
+          - payables and accrued expense
+          - payable and accrued expenses
+          - payable and accrued expense
+          - payables and acc expenses
+          - payables and acc expense
+          - payable and acc expenses
+          - payable and acc expense
+          - payables and accrued exps
+          - payables and accrued exp
+          - payable and accrued exps
+          - payable and accrued exp
+          - payables and acc exps
+          - payables and acc exp
+          - payable and acc exps
+          - payable and acc exp
         forecast:
           pct_of: revenue
 
@@ -259,6 +319,50 @@ statements:
           - curr port lt debt
           - current port of lt debt
           - current port lt debt
+          - curr portion of lt debt
+          - curr portion lt debt
+          - current portion of lt debt
+          - current portion lt debt
+          - curr port of longterm debt
+          - curr port longterm debt
+          - current port of longterm debt
+          - current port longterm debt
+          - curr portion of longterm debt
+          - curr portion longterm debt
+          - current portion of longterm debt
+          - current portion longterm debt
+          - curr port of long term debt
+          - curr port long term debt
+          - current port of long term debt
+          - current port long term debt
+          - curr portion of long term debt
+          - curr portion long term debt
+          - current portion of long term debt
+          - current portion long term debt
+          - curr port of debt
+          - curr port debt
+          - current port of debt
+          - current port debt
+          - curr portion of debt
+          - curr portion debt
+          - current portion of debt
+          - current portion debt
+          - curr part of lt debt
+          - curr part lt debt
+          - current part of lt debt
+          - current part lt debt
+          - curr part of longterm debt
+          - curr part longterm debt
+          - current part of longterm debt
+          - current part longterm debt
+          - curr part of long term debt
+          - curr part long term debt
+          - current part of long term debt
+          - current part long term debt
+          - curr part of debt
+          - curr part debt
+          - current part of debt
+          - current part debt
         forecast:
           pct_of: total_debt
 
@@ -268,6 +372,129 @@ statements:
           - tax liab shortterm
           - tax liability shortterm
           - tax liabilities shortterm
+          - tax liab short term
+          - tax liability short term
+          - tax liabilities short term
+          - tax liab st
+          - tax liability st
+          - tax liabilities st
+          - shortterm tax liab
+          - shortterm tax liability
+          - shortterm tax liabilities
+          - short term tax liab
+          - short term tax liability
+          - short term tax liabilities
+          - st tax liab
+          - st tax liability
+          - st tax liabilities
+          - def tax liab shortterm
+          - def tax liability shortterm
+          - def tax liabilities shortterm
+          - def tax liab short term
+          - def tax liability short term
+          - def tax liabilities short term
+          - def tax liab st
+          - def tax liability st
+          - def tax liabilities st
+          - def shortterm tax liab
+          - def shortterm tax liability
+          - def shortterm tax liabilities
+          - def short term tax liab
+          - def short term tax liability
+          - def short term tax liabilities
+          - def st tax liab
+          - def st tax liability
+          - def st tax liabilities
+          - deferred tax liab shortterm
+          - deferred tax liability shortterm
+          - deferred tax liabilities shortterm
+          - deferred tax liab short term
+          - deferred tax liability short term
+          - deferred tax liabilities short term
+          - deferred tax liab st
+          - deferred tax liability st
+          - deferred tax liabilities st
+          - deferred shortterm tax liab
+          - deferred shortterm tax liability
+          - deferred shortterm tax liabilities
+          - deferred short term tax liab
+          - deferred short term tax liability
+          - deferred short term tax liabilities
+          - deferred st tax liab
+          - deferred st tax liability
+          - deferred st tax liabilities
+          - tax liab noncurr
+          - tax liability noncurr
+          - tax liabilities noncurr
+          - tax liab non curr
+          - tax liability non curr
+          - tax liabilities non curr
+          - noncurr tax liab
+          - noncurr tax liability
+          - noncurr tax liabilities
+          - non curr tax liab
+          - non curr tax liability
+          - non curr tax liabilities
+          - def tax liab noncurr
+          - def tax liability noncurr
+          - def tax liabilities noncurr
+          - def tax liab non curr
+          - def tax liability non curr
+          - def tax liabilities non curr
+          - def noncurr tax liab
+          - def noncurr tax liability
+          - def noncurr tax liabilities
+          - def non curr tax liab
+          - def non curr tax liability
+          - def non curr tax liabilities
+          - deferred tax liab noncurr
+          - deferred tax liability noncurr
+          - deferred tax liabilities noncurr
+          - deferred tax liab non curr
+          - deferred tax liability non curr
+          - deferred tax liabilities non curr
+          - deferred noncurr tax liab
+          - deferred noncurr tax liability
+          - deferred noncurr tax liabilities
+          - deferred non curr tax liab
+          - deferred non curr tax liability
+          - deferred non curr tax liabilities
+          - tax liab noncurrent
+          - tax liability noncurrent
+          - tax liabilities noncurrent
+          - tax liab non current
+          - tax liability non current
+          - tax liabilities non current
+          - noncurrent tax liab
+          - noncurrent tax liability
+          - noncurrent tax liabilities
+          - non current tax liab
+          - non current tax liability
+          - non current tax liabilities
+          - def tax liab noncurrent
+          - def tax liability noncurrent
+          - def tax liabilities noncurrent
+          - def tax liab non current
+          - def tax liability non current
+          - def tax liabilities non current
+          - def noncurrent tax liab
+          - def noncurrent tax liability
+          - def noncurrent tax liabilities
+          - def non current tax liab
+          - def non current tax liability
+          - def non current tax liabilities
+          - deferred tax liab noncurrent
+          - deferred tax liability noncurrent
+          - deferred tax liabilities noncurrent
+          - deferred tax liab non current
+          - deferred tax liability non current
+          - deferred tax liabilities non current
+          - deferred noncurrent tax liab
+          - deferred noncurrent tax liability
+          - deferred noncurrent tax liabilities
+          - deferred non current tax liab
+          - deferred non current tax liability
+          - deferred non current tax liabilities
 
       - key: other_current_liab
         display_name: "Other Current Liabilities"
@@ -276,6 +503,10 @@ statements:
           - other current liab
           - other curr liabilities
           - other curr liab
+          - other liabilities current
+          - other liab current
+          - other liabilities curr
+          - other liab curr
 
       - key: total_current_liab
         display_name: "Total Current Liabilities"
@@ -323,9 +554,101 @@ statements:
           - deferred revenue
           - deferred sales
           - def revenue
-          - def sales
-          - non current revenue
+          - def sales" "non current revenue
           - non current sales
+          - non current revenue def
+          - non current sales def
+          - non current revenue deferred
+          - non current sales deferred
+          - revenue non current
+          - sales non current
+          - revenue def non current
+          - sales def non current
+          - revenue deferred non current
+          - sales deferred non current
+          - def revenue non current
+          - def sales non current
+          - def revenue def non current
+          - def sales def non current
+          - def revenue deferred non current
+          - def sales deferred non current
+          - deferred revenue non current
+          - deferred sales non current
+          - deferred revenue def non current
+          - deferred sales def non current
+          - deferred revenue deferred non current
+          - deferred sales deferred non current
+          - non curr revenue
+          - non curr sales
+          - non curr revenue def
+          - non curr sales def
+          - non curr revenue deferred
+          - non curr sales deferred
+          - revenue non curr
+          - sales non curr
+          - revenue def non curr
+          - sales def non curr
+          - revenue deferred non curr
+          - sales deferred non curr
+          - def revenue non curr
+          - def sales non curr
+          - def revenue def non curr
+          - def sales def non curr
+          - def revenue deferred non curr
+          - def sales deferred non curr
+          - deferred revenue non curr
+          - deferred sales non curr
+          - deferred revenue def non curr
+          - deferred sales def non curr
+          - deferred revenue deferred non curr
+          - deferred sales deferred non curr" "noncurrent revenue
+          - noncurrent sales
+          - noncurrent revenue def
+          - noncurrent sales def
+          - noncurrent revenue deferred
+          - noncurrent sales deferred
+          - revenue noncurrent
+          - sales noncurrent
+          - revenue def noncurrent
+          - sales def noncurrent
+          - revenue deferred noncurrent
+          - sales deferred noncurrent
+          - def revenue noncurrent
+          - def sales noncurrent
+          - def revenue def noncurrent
+          - def sales def noncurrent
+          - def revenue deferred noncurrent
+          - def sales deferred noncurrent
+          - deferred revenue noncurrent
+          - deferred sales noncurrent
+          - deferred revenue def noncurrent
+          - deferred sales def noncurrent
+          - deferred revenue deferred noncurrent
+          - deferred sales deferred noncurrent
+          - noncurr revenue
+          - noncurr sales
+          - noncurr revenue def
+          - noncurr sales def
+          - noncurr revenue deferred
+          - noncurr sales deferred
+          - revenue noncurr
+          - sales noncurr
+          - revenue def noncurr
+          - sales def noncurr
+          - revenue deferred noncurr
+          - sales deferred noncurr
+          - def revenue noncurr
+          - def sales noncurr
+          - def revenue def noncurr
+          - def sales def noncurr
+          - def revenue deferred noncurr
+          - def sales deferred noncurr
+          - deferred revenue noncurr
+          - deferred sales noncurr
+          - deferred revenue def noncurr
+          - deferred sales def noncurr
+          - deferred revenue deferred noncurr
+          - deferred sales deferred noncurr
 
       - key: tax_liab_lt
         display_name: "Tax Liabilities, Long-Term"
@@ -348,12 +671,153 @@ statements:
           - lt tax liab
           - lt tax liability
           - lt tax liabilities
-          - deferred tax liab
-          - deferred tax liability
-          - deferred tax liabilities
-          - def tax liab
-          - def tax liability
-          - def tax liabilities
+          - tax liab longterm def
+          - tax liability longterm def
+          - tax liabilities longterm def
+          - tax liab long term def
+          - tax liability long term def
+          - tax liabilities long term def
+          - tax liab lt def
+          - tax liability lt def
+          - tax liabilities lt def
+          - longterm tax liab def
+          - longterm tax liability def
+          - longterm tax liabilities def
+          - long term tax liab def
+          - long term tax liability def
+          - long term tax liabilities def
+          - lt tax liab def
+          - lt tax liability def
+          - lt tax liabilities def
+          - tax liab longterm deferred
+          - tax liability longterm deferred
+          - tax liabilities longterm deferred
+          - tax liab long term deferred
+          - tax liability long term deferred
+          - tax liabilities long term deferred
+          - tax liab lt deferred
+          - tax liability lt deferred
+          - tax liabilities lt deferred
+          - longterm tax liab deferred
+          - longterm tax liability deferred
+          - longterm tax liabilities deferred
+          - long term tax liab deferred
+          - long term tax liability deferred
+          - long term tax liabilities deferred
+          - lt tax liab deferred
+          - lt tax liability deferred
+          - lt tax liabilities deferred
+          - def tax liab longterm
+          - def tax liability longterm
+          - def tax liabilities longterm
+          - def tax liab long term
+          - def tax liability long term
+          - def tax liabilities long term
+          - def tax liab lt
+          - def tax liability lt
+          - def tax liabilities lt
+          - def longterm tax liab
+          - def longterm tax liability
+          - def longterm tax liabilities
+          - def long term tax liab
+          - def long term tax liability
+          - def long term tax liabilities
+          - def lt tax liab
+          - def lt tax liability
+          - def lt tax liabilities
+          - deferred tax liab longterm
+          - deferred tax liability longterm
+          - deferred tax liabilities longterm
+          - deferred tax liab long term
+          - deferred tax liability long term
+          - deferred tax liabilities long term
+          - deferred tax liab lt
+          - deferred tax liability lt
+          - deferred tax liabilities lt
+          - deferred longterm tax liab
+          - deferred longterm tax liability
+          - deferred longterm tax liabilities
+          - deferred long term tax liab
+          - deferred long term tax liability
+          - deferred long term tax liabilities
+          - deferred lt tax liab
+          - deferred lt tax liability
+          - deferred lt tax liabilities
+          - tax liab noncurrent
+          - tax liability noncurrent
+          - tax liabilities noncurrent
+          - noncurrent tax liab
+          - noncurrent tax liability
+          - noncurrent tax liabilities
+          - def tax liab noncurrent
+          - def tax liability noncurrent
+          - def tax liabilities noncurrent
+          - def noncurrent tax liab
+          - def noncurrent tax liability
+          - def noncurrent tax liabilities
+          - deferred tax liab noncurrent
+          - deferred tax liability noncurrent
+          - deferred tax liabilities noncurrent
+          - deferred noncurrent tax liab
+          - deferred noncurrent tax liability
+          - deferred noncurrent tax liabilities
+          - tax liab noncurr
+          - tax liability noncurr
+          - tax liabilities noncurr
+          - noncurr tax liab
+          - noncurr tax liability
+          - noncurr tax liabilities
+          - def tax liab noncurr
+          - def tax liability noncurr
+          - def tax liabilities noncurr
+          - def noncurr tax liab
+          - def noncurr tax liability
+          - def noncurr tax liabilities
+          - deferred tax liab noncurr
+          - deferred tax liability noncurr
+          - deferred tax liabilities noncurr
+          - deferred noncurr tax liab
+          - deferred noncurr tax liability
+          - deferred noncurr tax liabilities
+          - tax liab non current
+          - tax liability non current
+          - tax liabilities non current
+          - non current tax liab
+          - non current tax liability
+          - non current tax liabilities
+          - def tax liab non current
+          - def tax liability non current
+          - def tax liabilities non current
+          - def non current tax liab
+          - def non current tax liability
+          - def non current tax liabilities
+          - deferred tax liab non current
+          - deferred tax liability non current
+          - deferred tax liabilities non current
+          - deferred non current tax liab
+          - deferred non current tax liability
+          - deferred non current tax liabilities
+          - tax liab non curr
+          - tax liability non curr
+          - tax liabilities non curr
+          - non curr tax liab
+          - non curr tax liability
+          - non curr tax liabilities
+          - def tax liab non curr
+          - def tax liability non curr
+          - def tax liabilities non curr
+          - def non curr tax liab
+          - def non curr tax liability
+          - def non curr tax liabilities
+          - deferred tax liab non curr
+          - deferred tax liability non curr
+          - deferred tax liabilities non curr
+          - deferred non curr tax liab
+          - deferred non curr tax liability
+          - deferred non curr tax liabilities
+          - tax liab
+          - tax liability
+          - tax liabilities
 
       - key: deposit_liab
         display_name: "Deposit Liabilities"
@@ -374,9 +838,53 @@ statements:
           - other noncurrent liabilities
           - other non current liabilities
           - other noncurr liabilities
+          - other non curr liabilities
+          - other noncurrent liab
+          - other non current liab
+          - other noncurr liab
+          - other non curr liab
+          - other liabilities lt
+          - other liabilities longterm
+          - other liabilities long term
+          - other liab lt
+          - other liab longterm
+          - other liab long term
+          - other liabilities noncurrent
+          - other liabilities non current
+          - other liabilities noncurr
+          - other liabilities non curr
+          - other liab noncurrent
+          - other liab non current
+          - other liab noncurr
+          - other liab non curr
           - lt liabilities other
           - longterm liabilities other
           - long term liabilities other
+          - lt liab other
+          - longterm liab other
+          - long term liab other
+          - noncurrent liabilities other
+          - non current liabilities other
+          - noncurr liabilities other
+          - non curr liabilities other
+          - noncurrent liab other
+          - non current liab other
+          - noncurr liab other
+          - non curr liab other
+          - liabilities lt other
+          - liabilities longterm other
+          - liabilities long term other
+          - liab lt other
+          - liab longterm other
+          - liab long term other
+          - liabilities noncurrent other
+          - liabilities non current other
+          - liabilities noncurr other
+          - liabilities non curr other
+          - liab noncurrent other
+          - liab non current other
+          - liab noncurr other
+          - liab non curr other
 
       - key: total_non_current_liab
         display_name: "Total Non-Current Liabilities"
@@ -476,10 +984,7 @@ statements:
           - equity
           - shareholders equity
           - stockholders equity
-          - total shareholder equity
-          - shareholder equity
-          - shareholders equity
-          - stockholder equity
+
         expr_str: "other_income[t] + retained_earnings[t] + common_stock[t] + minority_interest[t]"
         forecast:
           make_forecast: false
@@ -491,6 +996,10 @@ statements:
           - total liab and equity
           - total liabilities equity
           - total liab equity
+          - liabilities and equity
+          - liab and equity
+          - liabilities equity
+          - liab equity
         expr_str: "total_liab[t] + total_equity[t]"
         forecast:
           make_forecast: false
@@ -551,9 +1060,15 @@ statements:
           - selling general and administrative exp
           - selling general administrative
           - selling general administrative expense
+          - selling general administrative expenses
           - selling general administrative exp
+          - selling general and admin
+          - selling general and admin expense
+          - selling general and admin expenses
+          - selling general and admin exp
           - selling general admin
           - selling general admin expense
+          - selling general admin expenses
           - selling general admin exp
 
       - key: int_exp
@@ -561,8 +1076,12 @@ statements:
         extract_names:
           - int
           - int expense
+          - int expenses
+          - int exp
           - interest
           - interest expense
+          - interest expenses
+          - interest exp
         forecast:
           pct_of: total_debt
 
@@ -595,10 +1114,6 @@ statements:
           - research and development expense
           - research and development exp
           - research and development
-          - research development
-          - research development expenses
-          - research development expense
-          - research development exp
 
       - key: dep_exp
         display_name: "Depreciation & Amortization Expense"
@@ -612,10 +1127,8 @@ statements:
           - depreciation
           - depreciation amortization
           - depreciation and amortization
-          - depreciation and amort expense
-          - depreciation amort expense
-          - depreciation expense
-          - dep expense
+          - dep amortization
+          - dep and amortization
 
       - key: other_op_exp
         display_name: "Other Operating Expenses"
@@ -627,9 +1140,45 @@ statements:
           - other op expense
           - other op exp
           - other operating expensesincome
+          - other operating expenseincome
+          - other operating expincome
+          - other op expensesincome
+          - other op expenseincome
+          - other op expincome
           - other operating expenses income
+          - other operating expense income
+          - other operating exp income
+          - other op expenses income
+          - other op expense income
+          - other op exp income
+          - other operating expensesinc
+          - other operating expenseinc
+          - other operating expinc
+          - other op expensesinc
+          - other op expenseinc
+          - other op expinc
+          - other operating expenses inc
+          - other operating expense inc
+          - other operating exp inc
+          - other op expenses inc
+          - other op expense inc
+          - other op exp inc
           - other income expenses
           - other income expense
+          - other income exps
+          - other income exp
+          - other inc expenses
+          - other inc expense
+          - other inc exps
+          - other inc exp
+          - other expenses income
+          - other expense income
+          - other exps income
+          - other exp income
+          - other expenses inc
+          - other expense inc
+          - other exps inc
+          - other exp inc
 
       - key: gain_on_sale_invest
         display_name: "Gain on Sale of Investments"
@@ -673,10 +1222,12 @@ statements:
           - impairment exp
           - impairments
           - impair
-          - asset writedown
-          - assets writedown
-          - asset write down
-          - assets write down
+          - impair expense
+          - impair exp
+          - impairment charges
+          - impairment charge
+          - impair charges
+          - impair charge
           - impairment of goodwill
           - impairment expense of goodwill
           - impairment exp of goodwill
@@ -684,10 +1235,6 @@ statements:
           - impair of goodwill
           - impair expense of goodwill
           - impair exp of goodwill
-          - impairment charges
-          - impairment charge
-          - impair charges
-          - impair charge
           - impairment charges of goodwill
           - impairment charge of goodwill
           - impair charges of goodwill
@@ -703,6 +1250,10 @@ statements:
           - impairment charge goodwill
           - impair charges goodwill
           - impair charge goodwill
+          - asset writedown
+          - assets writedown
+          - asset write down
+          - assets write down
 
       - key: op_exp
         display_name: "Operating Expense"
@@ -721,16 +1272,26 @@ statements:
         display_name: "Earnings Before Interest and Taxes"
         extract_names:
           - ebit
-          - operating income
-          - op income
           - earnings before interest and taxes
           - earnings before int and taxes
           - earnings before interest and tax
           - earnings before int and tax
           - earn before interest and taxes
           - earn before int and taxes
-          - operating inc
+          - earn before interest and tax
+          - earn before int and tax
+          - earnings before interest taxes
+          - earnings before int taxes
+          - earnings before interest tax
+          - earnings before int tax
+          - earn before interest taxes
+          - earn before int taxes
+          - earn before interest tax
+          - earn before int tax
+          - operating income
+          - op income
           - op inc
+          - operating inc
         force_positive: false
         expr_str: "gross_profit[t] - op_exp[t]"
         forecast:
@@ -752,6 +1313,13 @@ statements:
           - ebt inc unusual items
           - earnings before taxes inc unusual items
           - earnings before tax inc unusual items
+          - earn before tax inc unusual items
+          - earn before taxes inc unusual items
+          - ebt incl unusual items
+          - earnings before taxes incl unusual items
+          - earnings before tax incl unusual items
+          - earn before tax incl unusual items
+          - earn before taxes incl unusual items
           - pretax income
           - pre tax income
           - income pretax
