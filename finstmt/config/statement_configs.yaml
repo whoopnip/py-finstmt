@@ -1,0 +1,777 @@
+statements:
+  - key: bs
+    display_name: "Balance Sheet"
+    items:
+      - key: cash
+        display_name: "Cash and Cash Equivalents"
+        extract_names:
+          - cash
+          - cash and cash equivalents
+          - cash and equivalents
+          - cash and equiv
+          - cash cash equivalents
+          - cash equivalents
+          - cash equiv
+        forecast:
+          plug: true
+
+      - key: st_invest
+        display_name: "Short-Term Investments"
+        extract_names:
+          - shortterm investments
+          - short term investments
+          - st investments
+          - shortterm invest
+          - short term invest
+          - st invest
+
+      - key: cash_and_st_invest
+        display_name: "Cash and Short-Term Investments"
+        extract_names:
+          - total cash st investments
+          - total cash and st investments
+          - total cash and shortterm investments
+          - total cash st invest
+          - cash st investments
+          - cash and st investments
+          - cash st invest
+        expr_str: "cash[t] + st_invest[t]"
+        forecast:
+          make_forecast: false
+
+      - key: receivables
+        display_name: "Receivables"
+        extract_names:
+          - receivables
+          - rec
+          - accounts receivable
+          - ar
+        forecast:
+          pct_of: revenue
+
+      - key: inventory
+        display_name: "Inventory"
+        extract_names:
+          - inv
+          - inventory
+          - inventories
+        forecast:
+          pct_of: revenue
+
+      - key: def_tax_st
+        display_name: "Deferred Tax Assets, Current"
+        extract_names:
+          - def tax asset curr
+          - deferred tax asset curr
+          - tax asset curr
+          - def tax assets curr
+          - deferred tax assets curr
+          - tax assets curr
+
+      - key: other_current_assets
+        display_name: "Other Current Assets"
+        extract_names:
+          - other current assets
+          - other current asset
+          - other curr assets
+          - other curr asset
+          - oca
+
+      - key: total_current_assets
+        display_name: "Total Current Assets"
+        extract_names:
+          - total current assets
+          - tca
+        expr_str: "cash_and_st_invest[t] + receivables[t] + inventory[t] + def_tax_st[t] + other_current_assets[t]"
+        forecast:
+          make_forecast: false
+
+      - key: gross_ppe
+        display_name: "Gross Property, Plant & Equipment"
+        extract_names:
+          - gross ppe
+          - gross property plant equipment
+          - gross property plant and equipment
+          - ppe gross
+          - property plant equipment gross
+          - property plant and equipment gross
+          - grs ppe
+          - grs property plant equipment
+          - grs property plant and equipment
+
+      - key: dep
+        display_name: "Accumulated Depreciation"
+        extract_names:
+          - accumulated depreciation
+          - depreciation
+          - dep
+          - accumulated dep
+          - acc depreciation
+          - accum depreciation
+          - acc dep
+          - accum dep
+
+      - key: net_ppe
+        display_name: "Net Property, Plant & Equipment"
+        extract_names:
+          - ppe
+          - property plant equipment
+          - property plant and equipment
+          - ppe net
+          - net ppe
+          - property plant equipment net
+          - property plant and equipment net
+          - net property plant equipment
+          - net property plant and equipment
+        expr_str: "gross_ppe[t] - dep[t]"
+        forecast:
+          make_forecast: false
+
+      - key: goodwill
+        display_name: "Goodwill and Intangible Assets"
+        extract_names:
+          - goodwill
+          - goodwill and intangible assets
+          - goodwill and intangibles
+          - goodwill intangible assets
+          - goodwill intangibles
+          - goodwill total
+          - intangible assets
+          - intangibles
+          - intangible assets total
+
+      - key: lt_invest
+        display_name: "Long-Term Investments"
+        extract_names:
+          - lt invest
+          - lt investments
+          - long term invest
+          - long term investments
+          - longterm invest
+          - longterm investments
+
+      - key: def_tax_lt
+        display_name: "Deferred Tax Assets, Long-Term"
+        extract_names:
+          - def tax asset long term
+          - deferred tax asset long term
+          - tax asset long term
+          - def tax assets long term
+          - deferred tax assets long term
+          - tax assets long term
+          - def tax asset longterm
+          - def tax asset lt
+          - deferred tax asset lt
+          - tax asset lt
+          - tax assets lt
+          - def tax asset
+          - deferred tax asset
+          - tax asset
+          - def tax assets
+          - deferred tax assets
+          - tax assets
+          - deferred tax
+          - def tax
+          - deferred taxes
+          - def taxes
+
+      - key: other_lt_assets
+        display_name: "Other Long-Term Assets"
+        extract_names:
+          - other lt assets
+          - other lt asset
+          - other longterm assets
+          - other longterm asset
+          - other long term assets
+          - other long term asset
+
+      - key: total_non_current_assets
+        display_name: "Total Non-Current Assets"
+        extract_names:
+          - total non current assets
+          - total noncurrent assets
+          - total lt assets
+          - total longterm assets
+          - total long term assets
+        expr_str: "net_ppe[t] + goodwill[t] + lt_invest[t] + def_tax_lt[t] + other_lt_assets[t]"
+        forecast:
+          make_forecast: false
+
+      - key: total_assets
+        display_name: "Total Assets"
+        extract_names:
+          - total assets
+          - total asset
+          - assets
+          - asset
+        expr_str: "total_current_assets[t] + total_non_current_assets[t]"
+        forecast:
+          make_forecast: false
+          balance_with: total_liab_and_equity
+
+      - key: payables
+        display_name: "Payables"
+        extract_names:
+          - payables
+          - accounts payable
+          - ap
+          - payables and accrued expenses
+        forecast:
+          pct_of: revenue
+
+      - key: st_debt
+        display_name: "Short-Term Debt"
+        extract_names:
+          - st debt
+          - short term debt
+          - shortterm debt
+          - st borrow
+          - short term borrow
+          - shortterm borrow
+          - st borrowings
+          - short term borrowings
+          - shortterm borrowings
+        forecast:
+          pct_of: total_debt
+
+      - key: current_lt_debt
+        display_name: "Current Portion of Long-Term Debt"
+        extract_names:
+          - curr port of lt debt
+          - curr port lt debt
+          - current port of lt debt
+          - current port lt debt
+        forecast:
+          pct_of: total_debt
+
+      - key: tax_liab_st
+        display_name: "Tax Liabilities, Short-Term"
+        extract_names:
+          - tax liab shortterm
+          - tax liability shortterm
+          - tax liabilities shortterm
+
+      - key: other_current_liab
+        display_name: "Other Current Liabilities"
+        extract_names:
+          - other current liabilities
+          - other current liab
+          - other curr liabilities
+          - other curr liab
+
+      - key: total_current_liab
+        display_name: "Total Current Liabilities"
+        extract_names:
+          - total current liabilities
+        expr_str: "payables[t] + st_debt[t] + tax_liab_st[t] + current_lt_debt[t] + other_current_liab[t]"
+        forecast:
+          make_forecast: false
+
+      - key: lt_debt
+        display_name: "Long-Term Debt"
+        extract_names:
+          - lt debt
+          - long term debt
+          - longterm debt
+          - lt borrow
+          - long term borrow
+          - longterm borrow
+          - lt borrowings
+          - long term borrowings
+          - longterm borrowings
+          - lt debt total
+          - long term debt total
+          - longterm debt total
+          - lt borrow total
+          - long term borrow total
+          - longterm borrow total
+          - lt borrowings total
+          - long term borrowings total
+          - longterm borrowings total
+        forecast:
+          plug: true
+
+      - key: total_debt
+        display_name: "Total Debt"
+        extract_names:
+          - total debt
+        expr_str: "st_debt[t] + lt_debt[t]"
+        forecast:
+          make_forecast: false
+
+      - key: deferred_rev
+        display_name: "Deferred Revenue"
+        extract_names:
+          - deferred revenue
+          - deferred sales
+          - def revenue
+          - def sales
+          - non current revenue
+          - non current sales
+
+      - key: tax_liab_lt
+        display_name: "Tax Liabilities, Long-Term"
+        extract_names:
+          - tax liab longterm
+          - tax liability longterm
+          - tax liabilities longterm
+          - tax liab long term
+          - tax liability long term
+          - tax liabilities long term
+          - tax liab lt
+          - tax liability lt
+          - tax liabilities lt
+          - longterm tax liab
+          - longterm tax liability
+          - longterm tax liabilities
+          - long term tax liab
+          - long term tax liability
+          - long term tax liabilities
+          - lt tax liab
+          - lt tax liability
+          - lt tax liabilities
+          - deferred tax liab
+          - deferred tax liability
+          - deferred tax liabilities
+          - def tax liab
+          - def tax liability
+          - def tax liabilities
+
+      - key: deposit_liab
+        display_name: "Deposit Liabilities"
+        extract_names:
+          - deposit liab
+          - deposit liability
+          - deposit liabilities
+
+      - key: other_lt_liab
+        display_name: "Other Long-Term Liabilities"
+        extract_names:
+          - other lt liabilities
+          - other longterm liabilities
+          - other long term liabilities
+          - other lt liab
+          - other longterm liab
+          - other long term liab
+          - other noncurrent liabilities
+          - other non current liabilities
+          - other noncurr liabilities
+          - lt liabilities other
+          - longterm liabilities other
+          - long term liabilities other
+
+      - key: total_non_current_liab
+        display_name: "Total Non-Current Liabilities"
+        extract_names:
+          - total non current liabilities
+          - total noncurrent liabilities
+          - total non current liability
+          - total noncurrent liability
+          - total non current liab
+          - total noncurrent liab
+        expr_str: "lt_debt[t] + deferred_rev[t] + tax_liab_lt[t] + deposit_liab[t] + other_lt_liab[t]"
+        forecast:
+          make_forecast: false
+
+      - key: total_liab
+        display_name: "Total Liabilities"
+        extract_names:
+          - total liab
+          - total liability
+          - total liabilities
+        expr_str: "total_non_current_liab[t] + total_current_liab[t]"
+        forecast:
+          make_forecast: false
+
+      - key: common_stock
+        display_name: "Common Stock"
+        extract_names:
+          - total common stock
+          - total stock
+          - total common shares
+          - total shares
+          - common stock
+          - stock
+          - common shares
+          - shares
+          - net total common stock
+          - net total stock
+          - net total common shares
+          - net total shares
+          - net common stock
+          - net stock
+          - net common shares
+          - net shares
+          - total common stock net
+          - total stock net
+          - total common shares net
+          - total shares net
+          - common stock net
+          - stock net
+          - common shares net
+          - shares net
+
+      - key: other_income
+        display_name: "Other Comprehensive Income"
+        extract_names:
+          - other income
+          - other comprehensive income
+          - other comp income
+          - comp income
+          - comprehensive income
+          - comprehensive income and other
+          - comp income other
+          - comp income and other
+          - comp inc and other
+          - comprehensive inc and other
+          - comprehensive income other
+          - comp inc other
+          - comprehensive inc other
+        force_positive: false
+
+      - key: retained_earnings
+        display_name: "Retained Earnings"
+        extract_names:
+          - re
+          - retained earnings
+          - retained earnings deficit
+          - re deficit
+        force_positive: false
+
+      - key: minority_interest
+        display_name: "Minority Interest"
+        extract_names:
+          - minority interest
+          - minority int
+          - min int
+          - min interest
+
+      - key: total_equity
+        display_name: "Total Stockholder's Equity"
+        extract_names:
+          - total equity
+          - total shareholders equity
+          - total stockholders equity
+          - equity total
+          - shareholders equity total
+          - stockholders equity total
+          - equity
+          - shareholders equity
+          - stockholders equity
+          - total shareholder equity
+          - shareholder equity
+          - shareholders equity
+          - stockholder equity
+        expr_str: "other_income[t] + retained_earnings[t] + common_stock[t] + minority_interest[t]"
+        forecast:
+          make_forecast: false
+
+      - key: total_liab_and_equity
+        display_name: "Total Liabilities and Equity"
+        extract_names:
+          - total liabilities and equity
+          - total liab and equity
+          - total liabilities equity
+          - total liab equity
+        expr_str: "total_liab[t] + total_equity[t]"
+        forecast:
+          make_forecast: false
+          balance_with: total_assets
+
+      - key: nwc
+        display_name: "Net Working Capital"
+        extract_names:
+          - nwc
+        expr_str: "receivables[t] + inventory[t] - payables[t]"
+        forecast:
+          make_forecast: false
+        display_verbosity: 2
+
+  - key: inc
+    display_name: "Income Statement"
+    items:
+      - key: revenue
+        display_name: "Revenue"
+        extract_names:
+          - total revenue
+          - revenue
+          - total rev
+          - total sales
+          - total sale
+          - rev
+          - sales
+          - sale
+
+      - key: cogs
+        display_name: "Cost of Goods Sold"
+        extract_names:
+          - cost of revenue
+          - cost of goods sold
+          - cogs
+          - cor
+        forecast:
+          pct_of: revenue
+
+      - key: gross_profit
+        display_name: "Gross Profit"
+        force_positive: false
+        expr_str: "revenue[t] - cogs[t]"
+        forecast:
+          make_forecast: false
+        display_verbosity: 2
+
+      - key: sga
+        display_name: "SG&A Expense"
+        extract_names:
+          - sga
+          - sga expense
+          - sga expenses
+          - sga exp
+          - selling general and administrative
+          - selling general and administrative expense
+          - selling general and administrative expenses
+          - selling general and administrative exp
+          - selling general administrative
+          - selling general administrative expense
+          - selling general administrative exp
+          - selling general admin
+          - selling general admin expense
+          - selling general admin exp
+
+      - key: int_exp
+        display_name: "Interest Expense"
+        extract_names:
+          - int
+          - int expense
+          - interest
+          - interest expense
+        forecast:
+          pct_of: total_debt
+
+      - key: tax_exp
+        display_name: "Income Tax Expense"
+        extract_names:
+          - taxes
+          - tax
+          - tax provision
+          - tax expense
+          - tax expenses
+          - tax exp
+          - income tax
+          - income tax provision
+          - income tax expense
+          - income tax expenses
+          - income tax exp
+        force_positive: false
+        forecast_config:
+          pct_of: ebt
+
+      - key: rd_exp
+        display_name: "R&D Expense"
+        extract_names:
+          - rd expenses
+          - rd expense
+          - rd exp
+          - rd
+          - research and development expenses
+          - research and development expense
+          - research and development exp
+          - research and development
+          - research development
+          - research development expenses
+          - research development expense
+          - research development exp
+
+      - key: dep_exp
+        display_name: "Depreciation & Amortization Expense"
+        extract_names:
+          - da
+          - dep amort
+          - dep and amort
+          - dep
+          - depreciation amort
+          - depreciation and amort
+          - depreciation
+          - depreciation amortization
+          - depreciation and amortization
+          - depreciation and amort expense
+          - depreciation amort expense
+          - depreciation expense
+          - dep expense
+
+      - key: other_op_exp
+        display_name: "Other Operating Expenses"
+        extract_names:
+          - other operating expenses
+          - other operating expense
+          - other operating exp
+          - other op expenses
+          - other op expense
+          - other op exp
+          - other operating expensesincome
+          - other operating expenses income
+          - other income expenses
+          - other income expense
+
+      - key: gain_on_sale_invest
+        display_name: "Gain on Sale of Investments"
+        extract_names:
+          - gain loss on sale of invest
+          - gain loss sale of invest
+          - gain loss sale invest
+          - gain on sale of invest
+          - gain sale of invest
+          - gain sale invest
+          - gain loss on sale of investments
+          - gain loss sale of investments
+          - gain loss sale investments
+          - gain on sale of investments
+          - gain sale of investments
+          - gain sale investments
+        force_positive: false
+
+      - key: gain_on_sale_asset
+        display_name: "Gain on Sale of Assets"
+        extract_names:
+          - gain loss on sale of assets
+          - gain loss sale of assets
+          - gain loss sale assets
+          - gain on sale of assets
+          - gain sale of assets
+          - gain sale assets
+          - gain loss on sale of asset
+          - gain loss sale of asset
+          - gain loss sale asset
+          - gain on sale of asset
+          - gain sale of asset
+          - gain sale asset
+        force_positive: false
+
+      - key: impairment
+        display_name: "Impairment Expense"
+        extract_names:
+          - impairment
+          - impairment expense
+          - impairment exp
+          - impairments
+          - impair
+          - asset writedown
+          - assets writedown
+          - asset write down
+          - assets write down
+          - impairment of goodwill
+          - impairment expense of goodwill
+          - impairment exp of goodwill
+          - impairments of goodwill
+          - impair of goodwill
+          - impair expense of goodwill
+          - impair exp of goodwill
+          - impairment charges
+          - impairment charge
+          - impair charges
+          - impair charge
+          - impairment charges of goodwill
+          - impairment charge of goodwill
+          - impair charges of goodwill
+          - impair charge of goodwill
+          - impairment goodwill
+          - impairment expense goodwill
+          - impairment exp goodwill
+          - impairments goodwill
+          - impair goodwill
+          - impair expense goodwill
+          - impair exp goodwill
+          - impairment charges goodwill
+          - impairment charge goodwill
+          - impair charges goodwill
+          - impair charge goodwill
+
+      - key: op_exp
+        display_name: "Operating Expense"
+        extract_names:
+          - op expense
+          - op expenses
+          - op exp
+          - operating expense
+          - operating expenses
+          - operating exp
+        forecast_config:
+          make_forecast: false
+        expr_str: "rd_exp[t] + dep_exp[t] + sga[t] + other_op_exp[t]"
+
+      - key: ebit
+        display_name: "Earnings Before Interest and Taxes"
+        extract_names:
+          - ebit
+          - operating income
+          - op income
+          - earnings before interest and taxes
+          - earnings before int and taxes
+          - earnings before interest and tax
+          - earnings before int and tax
+          - earn before interest and taxes
+          - earn before int and taxes
+          - operating inc
+          - op inc
+        force_positive: false
+        expr_str: "gross_profit[t] - op_exp[t]"
+        forecast:
+          make_forecast: false
+
+      - key: ebt
+        display_name: "Earnings Before Tax"
+        extract_names:
+          - ebt
+          - earnings before taxes
+          - earnings before tax
+          - earn before tax
+          - earn before taxes
+          - ebt including unusual items
+          - earnings before taxes including unusual items
+          - earnings before tax including unusual items
+          - earn before tax including unusual items
+          - earn before taxes including unusual items
+          - ebt inc unusual items
+          - earnings before taxes inc unusual items
+          - earnings before tax inc unusual items
+          - pretax income
+          - pre tax income
+          - income pretax
+          - income pre tax
+        force_positive: false
+        expr_str: "ebit[t] - int_exp[t]"
+        forecast:
+          make_forecast: false
+
+      - key: net_income
+        display_name: "Net Income"
+        extract_names:
+          - net income
+          - net inc
+          - earnings
+          - earn
+        force_positive: false
+        expr_str: "ebt[t] - tax_exp[t]"
+        forecast:
+          make_forecast: false
+
+  - key: metrics
+    display_name: "Metrics"
+    items:
+      - key: capex
+        display_name: "Capex"
+        expr_str: "net_ppe[t] - net_ppe[t-1] + dep[t]"
+        forecast:
+          make_forecast: false
+
+      - key: non_cash_expenses
+        display_name: "Non Cash Expense"
+        expr_str: "dep[t] + gain_on_sale_invest[t] + gain_on_sale_asset[t] + impairment[t]"
+        forecast:
+          make_forecast: false
+
+      - key: fcf
+        display_name: "Free Cash Flow"
+        expr_str: "net_income[t] + non_cash_expenses[t] - (nwc[t] - nwc[t-1]) - capex[t]"
+        forecast:
+          make_forecast: false
