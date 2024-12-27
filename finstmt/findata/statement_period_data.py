@@ -11,13 +11,13 @@ from finstmt.config_manage.data import DataConfigManager
 from finstmt.findata.statement_item import StatementItem
 
 
-class PeriodFinancialData:
+class StatementPeriodData:
     """
     Base class for financial statement data. Should not be used directly.
     """
 
     config_manager: DataConfigManager
-    prior_statement: Optional["PeriodFinancialData"]
+    prior_statement: Optional["StatementPeriodData"]
     unextracted_names: List[str]
     statement_items: Dict[str, StatementItem]
 
@@ -29,7 +29,7 @@ class PeriodFinancialData:
         data_dict: Dict[str, float],
         config_manager: DataConfigManager,
         unextracted_names: List[str],
-        prior_statement: Optional["PeriodFinancialData"] = None,
+        prior_statement: Optional["StatementPeriodData"] = None,
     ):
         self.config_manager = DataConfigManager(deepcopy(config_manager.configs))
         self.prior_statement = prior_statement
@@ -108,7 +108,7 @@ class PeriodFinancialData:
         cls,
         series: pd.Series,
         config_manager: DataConfigManager,
-        prior_statement: Optional["PeriodFinancialData"] = None,
+        prior_statement: Optional["StatementPeriodData"] = None,
     ):
         for_lookup = deepcopy(series)
         standardize_names_in_series_index(for_lookup)

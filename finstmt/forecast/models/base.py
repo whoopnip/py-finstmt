@@ -9,7 +9,7 @@ from packaging import version
 from finstmt.exc import ForecastNotFitException, ForecastNotPredictedException
 from finstmt.forecast.config import ForecastConfig, ForecastItemConfig
 from finstmt.forecast.plot import plot_forecast
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 
 
 class ForecastModel:
@@ -21,12 +21,12 @@ class ForecastModel:
     def __init__(
         self,
         config: ForecastConfig,
-        item_config: ForecastItemConfig,
-        base_config: ItemConfig,
+        forecast_item_config: ForecastItemConfig,
+        item_config: ItemConfig,
     ):
         self.config = config
+        self.forecast_item_config = forecast_item_config
         self.item_config = item_config
-        self.base_config = base_config
         self.has_been_fit = False
         self.has_prediction = False
 
@@ -50,7 +50,7 @@ class ForecastModel:
         if xlabel is None:
             xlabel = "Time"
         if title is None:
-            title = self.base_config.display_name
+            title = self.item_config.display_name
 
         if self.orig_series is None:
             raise ForecastNotPredictedException("call .fit then .predict before .plot")

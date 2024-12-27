@@ -5,7 +5,7 @@ import pandas as pd
 from sympy import Eq, Expr, Indexed, IndexedBase, Symbol, expand, sympify
 from sympy.logic.boolalg import BooleanFalse, BooleanTrue
 
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 
 PLUG_SCALE = 1e11
 

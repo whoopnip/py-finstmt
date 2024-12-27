@@ -7,18 +7,20 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Subplot
 from typing_extensions import Self
 
-from finstmt.combined.combinator import ForecastedFinancialStatementsCombinator
-from finstmt.combined.statements import FinancialStatements
-from finstmt.forecast.main import Forecast
+from finstmt.findata.combinator import ForecastedFinancialStatementsCombinator
+from finstmt.findata.statements import FinancialStatements
+from finstmt.forecast.forecast_item_series import ForecastItemSeries
 
 NUM_PLOT_COLUMNS = 3
 DEFAULT_WIDTH = 15
 DEFAULT_HEIGHT_PER_ROW = 3
 
 
+
+
 @dataclass
 class ForecastedFinancialStatements(FinancialStatements):
-    forecasts: Dict[str, Forecast] = field(default_factory=lambda: {})
+    forecasts: Dict[str, ForecastItemSeries] = field(default_factory=lambda: {})
 
     def __post_init__(self):
         self._combinator = ForecastedFinancialStatementsCombinator()
@@ -80,10 +82,10 @@ class ForecastedFinancialStatements(FinancialStatements):
             fig.delaxes(axes[row][col])
         return fig
 
-    def __round__(self, n=None) -> Self:
-        new_fcst = super().__round__(n)
-        new_fcst.forecasts = {k: round(v, n) for k, v in self.forecasts.items()}  # type: ignore[call-overload]
-        return new_fcst
+    # def __round__(self, n=None) -> Self:
+    #     new_fcst = super().__round__(n)
+    #     new_fcst.forecasts = {k: round(v, n) for k, v in self.forecasts.items()}  # type: ignore[call-overload]
+    #     return new_fcst
 
 
 def _plot_finished(row: int, col: int, max_rows: int, max_cols: int) -> bool:

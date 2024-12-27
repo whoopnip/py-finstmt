@@ -3,5 +3,5 @@ Work with financial statement data in Python. Can calculate free cash flows and 
 financial statements, automatically balancing the balance sheet. 
 """
 __version__ = "1.4.0"
-from finstmt.combined.statements import FinancialStatements
+from finstmt.findata.statements import FinancialStatements
 from finstmt.config_manage.global_ import CONFIG

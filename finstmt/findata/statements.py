@@ -7,27 +7,40 @@ from sympy import Idx, IndexedBase, symbols
 from typing_extensions import Self
 
 from finstmt.check import item_series_is_empty
-from finstmt.combined.combinator import (
+from finstmt.findata.combinator import (
     FinancialStatementsCombinator,
     StatementsCombinator,
 )
-from finstmt.config.statement_config import StatementConfig
+from finstmt.config.statement_config import StatementConfig, load_statement_configs
 from finstmt.config_manage.statements import StatementsConfigManager
 from finstmt.exc import MismatchingDatesException
-from finstmt.findata.statementsbase import FinStatementsBase
+from finstmt.findata.statement_series import StatementSeries
+from finstmt.findata.statement_item_series import StatementItemSeries
 from finstmt.forecast.config import ForecastConfig
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 from finstmt.logger import logger
 from finstmt.resolver.solve import numpy_solve
+
+import math
+import warnings
+from typing import Dict, Optional, Sequence, Tuple
+import matplotlib.pyplot as plt
+from matplotlib.axes import Subplot
+
+
+NUM_PLOT_COLUMNS = 3
+DEFAULT_WIDTH = 15
+DEFAULT_HEIGHT_PER_ROW = 3
 
 if TYPE_CHECKING:
     from finstmt.forecast.statements import ForecastedFinancialStatements
 
 
+# I think FinancialStatementsGroup is a good name
 @dataclass
 class FinancialStatements:
     """
-    Main class that holds all the financial statements.
+    Main class that holds a group of financial statements (which each have a series of statements for dates).
 
     :param auto_adjust_config: Whether to automatically adjust the configuration based
         on the loaded data. Currently will turn forecasting off for items not in the data,
@@ -45,13 +58,17 @@ class FinancialStatements:
         >>> stmts = FinancialStatements(inc_data, bs_data)
     """
 
-    statements: List[FinStatementsBase]
+    statements: Dict[str, StatementSeries]  # Changed from List to Dict
     global_sympy_namespace: Dict[str, IndexedBase] = field(init=False, repr=False)
     calculate: bool = True
     auto_adjust_config: bool = True
     _combinator: StatementsCombinator[Self] = FinancialStatementsCombinator()  # type: ignore[assignment]
 
     def __post_init__(self):
+        # # Convert list to dict if needed for backwards compatibility
+        # if isinstance(self.statements, list):
+        #     dict_statements = {stmt.statement_name: stmt for stmt in self.statements}
+        #     self.statements = dict_statements
         self.initialize_namespace()
         self.resolve_expressions()
         self.update_statements()
@@ -61,15 +78,15 @@ class FinancialStatements:
         t = symbols("t", cls=Idx)
         self.global_sympy_namespace = {"t": t}
 
-        for stmt in self.statements:
-            for config in stmt.items_config_list:
+        for statement_series in self.statements.values():
+            for config in statement_series.items_config_list:
                 expr = IndexedBase(config.key)
                 self.global_sympy_namespace.update({config.key: expr})
 
     def resolve_expressions(self):
         eqns = []
-        for statement in self.statements:
-            eqns.extend(statement.get_expressions(self.global_sympy_namespace))
+        for statement_series in self.statements.values():
+            eqns.extend(statement_series.get_expressions(self.global_sympy_namespace))
 
         all_to_solve = {}
         for eqn in eqns:
@@ -85,14 +102,14 @@ class FinancialStatements:
             statement_item_key = k.base
             period_index = k.indices[0]
             statement_item_value = v
-            for stmt in self.statements:
-                stmt.update_statement_item_calculated_value(
+            for statement_series in self.statements.values():
+                statement_series.update_statement_item_calculated_value(
                     statement_item_key, period_index, statement_item_value
                 )
 
     def update_statements(self):
-        for stmt in self.statements:
-            stmt.df = stmt.to_df()
+        for statement_series in self.statements.values():
+            statement_series.df = statement_series.to_df()
 
     def resolve_statements(self):
         from finstmt.resolver.history import StatementsResolver
@@ -102,13 +119,13 @@ class FinancialStatements:
         if self.calculate:
             resolver = StatementsResolver(self)
             new_stmts = resolver.to_statements(auto_adjust_config=self.auto_adjust_config)
-            self.statements = new_stmts.statements
+            self.statements = {statement_name: statement_series for (statement_name, statement_series) in new_stmts.statements.items()}
             self._create_config_from_statements()
 
     def _create_config_from_statements(self):
         config_dict = {}
-        for stmt_timeseries in self.statements:
-            config_dict[stmt_timeseries.statement_name] = stmt_timeseries.config
+        for statement_name, statement_series in self.statements.items():
+            config_dict[statement_name] = statement_series.config
         self.config = StatementsConfigManager(config_managers=config_dict)
         if self.auto_adjust_config:
             self._adjust_config_based_on_data()
@@ -180,6 +197,16 @@ class FinancialStatements:
         series = getattr(self, data_key)
         return series.shift(num_lags)
 
+    def average(self, data_key: str, num_periods: int = 2) -> pd.Series:
+        """
+        Get the average of a data series over a number of periods
+
+        :param data_key: key of variable, how it would be accessed with FinancialStatements.data_key
+        :param num_periods: Number of periods to average over (default is 2)
+        """
+        series = getattr(self, data_key)
+        return series.rolling(num_periods).mean()
+
     def item_is_empty(self, data_key: str) -> bool:
         """
         Whether the passed item has no data
@@ -192,36 +219,47 @@ class FinancialStatements:
 
     def _repr_html_(self):
         result = ""
-        for stmt_timeseries in self.statements:
+        for statement_series in self.statements.values():
             result += f"""
-            <h2>{stmt_timeseries.statement_name}</h2>
-            {stmt_timeseries._repr_html_()}
+            <h2>{statement_series.statement_name}</h2>
+            {statement_series._repr_html_()}
             """
         return result
 
+    # returns a pd.Series for a given item
+    # TODO: consider implementing a breaking change to return a StatementItemSeries
+    # and have a similar approach on the forecasted statements, fo row use getItemSeries
     def __getattr__(self, item):
-        for stmt in self.statements:
-            if item in dir(stmt):
-                return getattr(stmt, item)
+        for statement_series in self.statements.values():
+            if item in dir(statement_series):
+                return getattr(statement_series, item)
 
         raise AttributeError(item)
+
+    def get_statement_item_series(self, item: str) -> StatementItemSeries:
+        for statement_series in self.statements.values():
+            if item in dir(statement_series):
+                return statement_series.get_statement_item_series(item)
+
+        raise AttributeError(item)
+    
 
     # get a list of the hetrogeneous statements for a given date
     def __getitem__(self, item):
         stmts_hetrogeneous = []
         if not isinstance(item, (list, tuple)):
             date_item = pd.to_datetime(item)
-            for stmt_timeseries in self.statements:
+            for statement_series in self.statements.values():
                 stmts_hetrogeneous.append(
-                    FinStatementsBase(
-                        {date_item: stmt_timeseries[item]},
-                        stmt_timeseries.items_config_list,
-                        stmt_timeseries.statement_name,
+                    StatementSeries(
+                        {date_item: statement_series[item]},
+                        statement_series.items_config_list,
+                        statement_series.statement_name,
                     )
                 )
         else:
-            for stmt in self.statements:
-                stmts_hetrogeneous.append(stmt[item])
+            for statement_series in self.statements.values():
+                stmts_hetrogeneous.append(statement_series[item])
 
         return FinancialStatements(stmts_hetrogeneous, self.global_sympy_namespace)
 
@@ -234,8 +272,8 @@ class FinancialStatements:
             "copy",
         ]
         all_config_items = []
-        for stmt in self.statements:
-            all_config_items.extend(stmt.config.items)
+        for statement_series in self.statements.values():
+            all_config_items.extend(statement_series.config.items)
 
         item_attrs = [config_item.key for config_item in all_config_items]
         return normal_attrs + item_attrs
@@ -272,8 +310,8 @@ class FinancialStatements:
 
         all_forecast_dict = {}
         all_results = {}
-        for stmt in self.statements:
-            forecast_dict, results = stmt._forecast(self, **kwargs)
+        for statement_series in self.statements.values():
+            forecast_dict, results = statement_series._forecast(self, **kwargs)
             all_forecast_dict.update(forecast_dict)
             all_results.update(results)
 
@@ -298,8 +336,8 @@ class FinancialStatements:
     @property
     def all_config_items(self) -> List[ItemConfig]:
         conf_items = []
-        for stmts in self.statements:
-            conf_items.extend(stmts.config.items)
+        for statement_series in self.statements.values():
+            conf_items.extend(statement_series.config.items)
         return conf_items
 
     @property
@@ -308,18 +346,19 @@ class FinancialStatements:
         return list(self.balance_sheets.statements.keys())
 
     def _validate_dates(self):
-        for stmts1 in self.statements:
-            for stmts2 in self.statements:
-                stmts1_dates = set(stmts1.statements.keys())
-                stmts2_dates = set(stmts2.statements.keys())
+        stmt_list = list(self.statements.values())
+        for i in range(len(stmt_list)):
+            for j in range(i + 1, len(stmt_list)):
+                stmts1_dates = set(stmt_list[i].statements.keys())
+                stmts2_dates = set(stmt_list[j].statements.keys())
                 if stmts1_dates != stmts2_dates:
                     stmts1_unique = stmts1_dates.difference(stmts2_dates)
                     stmts2_unique = stmts2_dates.difference(stmts1_dates)
                     message = "Got mismatching dates between historical statements. "
                     if stmts1_unique:
-                        message += f"Balance sheet has {stmts1_unique} dates not in Income Statement. "
+                        message += f"{stmt_list[i].statement_name} has {stmts1_unique} dates not in {stmt_list[j].statement_name}. "
                     if stmts2_unique:
-                        message += f"Income Statement has {stmts2_unique} dates not in Balance Sheet. "
+                        message += f"{stmt_list[j].statement_name} has {stmts2_unique} dates not in {stmt_list[i].statement_name}. "
                     raise MismatchingDatesException(message)
 
     def copy(self, **updates) -> Self:
@@ -354,7 +393,7 @@ class FinancialStatements:
 
     def __round__(self, n: Optional[int] = None) -> Self:
         new_statements = self.copy()
-        for stmt in new_statements.statements:
+        for stmt in new_statements.statements.values():
             stmt = round(stmt, n)  # type: ignore
         return new_statements
 
@@ -371,16 +410,15 @@ class FinancialStatements:
         dates = list(df.columns)
         dates.sort(key=lambda t: pd.to_datetime(t))
 
-        stmts = []
+        stmts = {}
         for statment_config in statement_config_list:
-            stmts.append(
-                FinStatementsBase.from_df(
-                    df,
-                    statment_config.display_name,
-                    statment_config.items_config_list,
-                    disp_unextracted=disp_unextracted,
-                )
+            stmt = StatementSeries.from_df(
+                df,
+                statment_config.display_name,
+                statment_config.items_config_list,
+                disp_unextracted=disp_unextracted,
             )
+            stmts[statment_config.display_name] = stmt
 
         return cls(stmts)
 
@@ -395,7 +433,9 @@ class FinancialStatements:
         :return: FinancialStatements object
         """
         from finstmt.config.config_loader import load_yaml_config
-        statement_configs = load_yaml_config(config_path)
+        # statement_configs = load_yaml_config(config_path)
+        statement_configs = load_statement_configs(config_path)
+        print(statement_configs)
         return cls.from_df(df, statement_configs, disp_unextracted)
 
     def to_excel(self, filepath: str, separate_sheets: bool = True) -> None:
@@ -423,12 +463,12 @@ class FinancialStatements:
             })
             
             if separate_sheets:
-                for stmt in self.statements:
-                    df = stmt.df.copy()
+                for statement_series in self.statements.values():
+                    df = statement_series.df.copy()
                     df.fillna(0, inplace=True)
                     df.columns = [pd.to_datetime(col).strftime("%m/%d/%Y") for col in df.columns]
                     
-                    sheet_name = stmt.statement_name
+                    sheet_name = statement_series.statement_name
                     # Write statement name first, then data starting one row down
                     df.to_excel(writer, sheet_name=sheet_name, startrow=1)
                     
@@ -444,11 +484,11 @@ class FinancialStatements:
                 all_dfs = []
                 current_row = 0
                 
-                for stmt in self.statements:
-                    df = stmt.df.copy()
+                for (statement_name, statement_series) in self.statements.items():
+                    df = statement_series.df.copy()
                     df.fillna(0, inplace=True)
                     df.index = [f"{idx}" for idx in df.index]  # Don't need statement prefix in index anymore
-                    all_dfs.append((stmt.statement_name, df))
+                    all_dfs.append((statement_name, df))
                 
                 # Create single worksheet
                 worksheet = workbook.add_worksheet('Financial Statements')
@@ -480,3 +520,101 @@ class FinancialStatements:
                 # Set column widths
                 worksheet.set_column(0, 0, 30)  # First column wider for labels
                 worksheet.set_column(1, len(df.columns), 15)  # Data columns
+
+    def plot(
+        self,
+        subset: Optional[Sequence[str]] = None,
+        figsize: Optional[Tuple[float, float]] = None,
+        num_cols: int = NUM_PLOT_COLUMNS,
+        height_per_row: float = DEFAULT_HEIGHT_PER_ROW,
+        plot_width: float = DEFAULT_WIDTH,
+    ) -> plt.Figure:
+        if subset is not None:
+            plot_items = {k: self.get_statement_item_series(k) for k in subset}
+        else:
+            plot_items = {item.key: self.get_statement_item_series(item.key) for item in self.all_config_items}
+        
+        num_plot_rows = math.ceil(len(plot_items) / num_cols)
+        num_plot_columns = min(len(plot_items), num_cols)
+
+        if figsize is None:
+            figsize = (plot_width, height_per_row * num_plot_rows)
+
+        fig, axes = plt.subplots(
+            num_plot_rows, num_plot_columns, sharex=False, sharey=False, figsize=figsize
+        )
+        row = 0
+        col = 0
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                action="ignore", message="Attempting to set identical bottom == top"
+            )
+            for i, (item_key, series) in enumerate(plot_items.items()):
+                selected_ax = _get_selected_ax(
+                    axes, row, col, num_plot_rows, num_plot_columns
+                )
+                series.plot(ax=selected_ax)
+
+                # For before final row, don't display x-axis
+                if not _is_last_plot_in_col(
+                    row, col, num_plot_rows, num_plot_columns, len(plot_items)
+                ):
+                    selected_ax.get_xaxis().set_visible(False)
+
+                if i == len(plot_items) - 1 or _plot_finished(
+                    row, col, num_plot_rows, num_plot_columns
+                ):
+                    break
+                col += 1
+                if col == num_plot_columns:
+                    row += 1
+                    col = 0
+        while not _plot_finished(row, col, num_plot_rows, num_plot_columns):
+            col += 1
+            if col == num_plot_columns:
+                row += 1
+                col = 0
+            fig.delaxes(axes[row][col])
+        plt.close()
+        return fig
+
+
+def _plot_finished(row: int, col: int, max_rows: int, max_cols: int) -> bool:
+    return row == max_rows - 1 and col == max_cols - 1
+
+
+def _get_selected_ax(
+    axes: plt.GridSpec, row: int, col: int, num_plot_rows: int, num_plot_columns: int
+) -> Subplot:
+    if num_plot_rows == num_plot_columns == 1:
+        # No array if single row and column
+        return axes
+    elif num_plot_rows == 1:
+        # 1D array if single row
+        return axes[col]
+    elif num_plot_columns == 1:
+        # 1D array if single column
+        return axes[row]
+    else:
+        # 2D array if multiple rows
+        return axes[row, col]
+
+
+def _is_last_plot_in_col(
+    row: int, col: int, num_plot_rows: int, num_plot_columns: int, num_plots: int
+) -> bool:
+    # In last row, automatically last plot in col
+    if row == num_plot_rows - 1:
+        return True
+
+    # If earlier than next to last row, must not be last plot in rol
+    if row != num_plot_rows - 2:
+        return False
+
+    # Must be in next to last row. Determine if there is going to be a plot below
+    plot_number = row * num_plot_columns + (col + 1)
+    if plot_number + num_plot_columns > num_plots:
+        # Moving down one row would mean that is more plots than necessary
+        return True
+    else:
+        return False

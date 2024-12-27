@@ -8,7 +8,7 @@ from finstmt.config.statement_config import (
     BALANCE_SHEET_CONFIG,
     INCOME_STATEMENT_CONFIG,
 )
-from finstmt.findata.statementsbase import FinStatementsBase
+from finstmt.findata.statement_series import StatementSeries
 from tests.fixtures.data.common import DATA_PATH
 
 STOCKROW_PATH = os.path.join(DATA_PATH, "stockrow")
@@ -22,8 +22,8 @@ def annual_stockrow_income_df_cat() -> pd.DataFrame:
 
 
 @pytest.fixture
-def annual_stockrow_income_stmt_cat() -> FinStatementsBase:
-    stmt = FinStatementsBase.from_df(
+def annual_stockrow_income_stmt_cat() -> StatementSeries:
+    stmt = StatementSeries.from_df(
         annual_stockrow_income_df_cat(),
         INCOME_STATEMENT_CONFIG.display_name,
         INCOME_STATEMENT_CONFIG.items_config_list,
@@ -38,8 +38,8 @@ def annual_stockrow_bs_df_cat() -> pd.DataFrame:
 
 
 @pytest.fixture
-def annual_stockrow_bs_stmt_cat() -> FinStatementsBase:
-    stmt = FinStatementsBase.from_df(
+def annual_stockrow_bs_stmt_cat() -> StatementSeries:
+    stmt = StatementSeries.from_df(
         annual_stockrow_bs_df_cat(),
         BALANCE_SHEET_CONFIG.display_name,
         BALANCE_SHEET_CONFIG.items_config_list,
@@ -64,8 +64,8 @@ def quarterly_stockrow_income_df_cat() -> pd.DataFrame:
 
 
 @pytest.fixture
-def quarterly_stockrow_income_stmt_cat() -> FinStatementsBase:
-    stmt = FinStatementsBase.from_df(
+def quarterly_stockrow_income_stmt_cat() -> StatementSeries:
+    stmt = StatementSeries.from_df(
         quarterly_stockrow_income_df_cat(),
         INCOME_STATEMENT_CONFIG.display_name,
         INCOME_STATEMENT_CONFIG.items_config_list,
@@ -80,8 +80,8 @@ def quarterly_stockrow_bs_df_cat() -> pd.DataFrame:
 
 
 @pytest.fixture
-def quarterly_stockrow_bs_stmt_cat() -> FinStatementsBase:
-    stmt = FinStatementsBase.from_df(
+def quarterly_stockrow_bs_stmt_cat() -> StatementSeries:
+    stmt = StatementSeries.from_df(
         quarterly_stockrow_bs_df_cat(),
         BALANCE_SHEET_CONFIG.display_name,
         BALANCE_SHEET_CONFIG.items_config_list,

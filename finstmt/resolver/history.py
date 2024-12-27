@@ -3,7 +3,7 @@ from typing import Dict, List
 import pandas as pd
 from sympy import Eq, IndexedBase, sympify
 
-from finstmt.combined.statements import FinancialStatements
+from finstmt.findata.statements import FinancialStatements
 from finstmt.resolver.base import ResolverBase
 from finstmt.resolver.solve import solve_equations, sympy_dict_to_results_dict
 
@@ -22,15 +22,15 @@ class StatementsResolver(ResolverBase):
         )
 
         all_results = pd.concat(list(new_results.values()), axis=1).T
-        stmts = []
-        for stmt in self.stmts.statements:
+        stmts = {}
+        for stmt in self.stmts.statements.values():
             stmt.from_df(
                 all_results,
                 stmt.statement_name,
                 stmt.config.items,
                 disp_unextracted=False,
             )
-            stmts.append(stmt)
+            stmts[stmt.statement_name] = stmt
 
         obj = FinancialStatements(stmts, calculate=False, **kwargs)
         return obj
@@ -38,7 +38,7 @@ class StatementsResolver(ResolverBase):
     @property
     def t_indexed_eqs(self) -> List[Eq]:
         config_managers = []
-        for stmt in self.stmts.statements:
+        for stmt in self.stmts.statements.values():
             config_managers.append(stmt.config.items)
         all_eqs = []
         for config_manage in config_managers:

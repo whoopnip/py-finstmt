@@ -4,7 +4,7 @@ from typing import Dict, List
 from sympy import Idx, IndexedBase, symbols
 
 from finstmt.config_manage.base import ConfigManagerBase
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 
 
 @dataclass

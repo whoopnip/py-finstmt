@@ -36,8 +36,8 @@ def data_source(request):
 
 
 def _build(income_df: pd.DataFrame, balance_df: pd.DataFrame) -> FinancialStatements:
-    income_stmt = FinStatementsBase.from_df(income_df)
-    bs_stmt = FinStatementsBase.from_df(balance_df)
+    income_stmt = StatementSeries.from_df(income_df)
+    bs_stmt = StatementSeries.from_df(balance_df)
     stmts = FinancialStatements(income_stmt, bs_stmt)
     return stmts
 
@@ -71,17 +71,17 @@ def statement(data_frequency: DataFrequency, data_source: DataSource):
     else:
         raise NotImplementedError
 
-    income_stmt = FinStatementsBase.from_df(
+    income_stmt = StatementSeries.from_df(
         inc_df,
         INCOME_STATEMENT_CONFIG.display_name,
         INCOME_STATEMENT_CONFIG.items_config_list,
     )
-    bs_stmt = FinStatementsBase.from_df(
+    bs_stmt = StatementSeries.from_df(
         bs_df, BALANCE_SHEET_CONFIG.display_name, BALANCE_SHEET_CONFIG.items_config_list
     )
 
     # metrics statement is all calculated fields
-    metrics_stmt = FinStatementsBase.from_df(
+    metrics_stmt = StatementSeries.from_df(
         inc_df[0:1],
         METRICS_STATEMENT_CONFIG.display_name,
         METRICS_STATEMENT_CONFIG.items_config_list,

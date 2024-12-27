@@ -5,9 +5,9 @@ from typing import Any, Dict, List, Sequence, Tuple, Union
 from sympy import IndexedBase
 
 from finstmt.config_manage.base import ConfigManagerBase
-from finstmt.config_manage.statement import StatementConfigManager
+from finstmt.config_manage.statementseries import StatementSeriesConfigManager
 from finstmt.exc import NoSuchItemException
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 from finstmt.logger import logger
 
 
@@ -17,7 +17,7 @@ class StatementsConfigManager(ConfigManagerBase):
     Main configuration interface. Handles all of the configuration for a set of financial statements.
     """
 
-    config_managers: Dict[str, StatementConfigManager]
+    config_managers: Dict[str, StatementSeriesConfigManager]
 
     def get(self, item_key: str) -> ItemConfig:
         """

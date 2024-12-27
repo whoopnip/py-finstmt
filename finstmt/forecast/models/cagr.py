@@ -33,7 +33,7 @@ class CAGRModel(ForecastModel):
                 specific_messages.append("y_T is negative")
             specific_message = ", ".join(specific_messages)
             message = (
-                f"CAGR not an appropriate method for {self.base_config.display_name} "
+                f"CAGR not an appropriate method for {self.item_config.display_name} "
                 f"as {specific_message}. Setting to 0 growth (recent value forecast)"
             )
             warnings.warn(message)

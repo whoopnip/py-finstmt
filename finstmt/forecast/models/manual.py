@@ -5,64 +5,52 @@ import pandas as pd
 from finstmt.exc import ImproperManualForecastException
 from finstmt.forecast.config import ForecastConfig, ForecastItemConfig
 from finstmt.forecast.models.base import ForecastModel
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 
-
+# TODO: updated this to be more generic, but could break backwards compatibility
+# could consider having "levels" and "growth" for backwards compatibility for some time
 class ManualForecastModel(ForecastModel):
     recent: Optional[float] = None
 
     def __init__(
         self,
         config: ForecastConfig,
-        item_config: ForecastItemConfig,
-        base_config: ItemConfig,
+        forecast_item_config: ForecastItemConfig,
+        item_config: ItemConfig,
     ):
-        super().__init__(config, item_config, base_config)
-        self._set_growths_levels()
+        super().__init__(config, forecast_item_config, item_config)
+        self._set_manual_forecasts()
         self._validate()
 
     def _validate(self):
-        if not self.growths and not self.levels:
+        if not self.forecast_values:
+            raise ImproperManualForecastException("must provide values for manual forecast")
+        # If only one value is provided, then repeat it for all periods
+        if len(self.forecast_values) == 1:
+            self.forecast_values = [self.forecast_values[0]] * self.config.periods
+        elif len(self.forecast_values) != self.config.periods:
             raise ImproperManualForecastException(
-                "must provide either growth or levels for manual forecast"
-            )
-        if self.growths and self.levels:
-            raise ImproperManualForecastException(
-                "must only provide one of growth or levels for manual forecast"
+                f"{len(self.forecast_values)} values were provided for {self.config.periods} forecast periods"
             )
 
-        forecast_length_error_str = (
-            f"were provided for {self.config.periods} forecast periods"
-        )
-        if self.growths:
-            if len(self.growths) != self.config.periods:
-                raise ImproperManualForecastException(
-                    f"{len(self.growths)} growth rates {forecast_length_error_str}"
-                )
-        else:
-            if len(self.levels) != self.config.periods:
-                raise ImproperManualForecastException(
-                    f"{len(self.levels)} levels {forecast_length_error_str}"
-                )
-
-    def _set_growths_levels(self):
-        self.growths = self.item_config.manual_forecasts["growth"]
-        self.levels = self.item_config.manual_forecasts["levels"]
+    def _set_manual_forecasts(self):
+        self.forecast_type = self.forecast_item_config.manual_forecasts["type"]
+        self.forecast_values = self.forecast_item_config.manual_forecasts["values"]
 
     def fit(self, series: pd.Series):
         self.recent = series.iloc[-1]
         super().fit(series)
 
     def predict(self) -> pd.Series:
-        if self.growths:
+        if self.forecast_type == "growth":
             values = []
             last_value = self.recent
-            for growth in self.growths:
+            for growth in self.forecast_values:
                 next_value = last_value * (1 + growth)
                 values.append(next_value)
                 last_value = next_value
         else:
-            values = self.levels
+            values = self.forecast_values
 
         self.result = pd.Series(values, index=self._future_date_range)
         self.result_df = pd.DataFrame(

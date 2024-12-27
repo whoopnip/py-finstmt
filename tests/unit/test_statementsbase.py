@@ -1,5 +1,5 @@
-from finstmt.findata.statementsbase import FinStatementsBase
-from finstmt.items.config import ItemConfig
+from finstmt.findata.statement_series import StatementSeries
+from finstmt.findata.item_config import ItemConfig
 
 
 def test_load_from_dict():
@@ -16,6 +16,6 @@ def test_load_from_dict():
         }
     }
 
-    stmt = FinStatementsBase.from_dict(dict, "Test Statment", config)
+    stmt = StatementSeries.from_dict(dict, "Test Statment", config)
 
     assert stmt.cash[0] == 1000

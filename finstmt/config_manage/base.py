@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Set
 from sympy import Eq, Expr, IndexedBase, sympify
 
 from finstmt.exc import InvalidBalanceConfigException, NotACalculatedItemException
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 
 
 class ConfigManagerBase:

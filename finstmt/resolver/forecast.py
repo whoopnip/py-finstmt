@@ -9,7 +9,7 @@ from scipy.optimize import OptimizeResult, minimize
 from sympy import Eq, Expr, IndexedBase, solve, sympify
 from sympy.core.numbers import NaN
 
-from finstmt.combined.statements import FinancialStatements
+from finstmt.findata.statements import FinancialStatements
 from finstmt.config_manage.data import _key_pct_of_key
 from finstmt.config_manage.statements import StatementsConfigManager
 from finstmt.exc import (
@@ -18,10 +18,10 @@ from finstmt.exc import (
     InvalidForecastEquationException,
     MissingDataException,
 )
-from finstmt.findata.statementsbase import FinStatementsBase
-from finstmt.forecast.main import Forecast
+from finstmt.findata.statement_series import StatementSeries
+from finstmt.forecast.forecast_item_series import ForecastItemSeries
 from finstmt.forecast.statements import ForecastedFinancialStatements
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 from finstmt.logger import logger
 from finstmt.resolver.base import ResolverBase
 
@@ -46,7 +46,7 @@ class ForecastResolver(ResolverBase):
     def __init__(
         self,
         stmts: "FinancialStatements",
-        forecast_dict: Dict[str, Forecast],
+        forecast_dict: Dict[str, ForecastItemSeries],
         results: Dict[str, pd.Series],
         bs_diff_max: float,
         timeout: float,
@@ -107,15 +107,15 @@ class ForecastResolver(ResolverBase):
 
         all_results = pd.concat(list(new_results.values()), axis=1).T
 
-        stmt_dfs = []
-        for stmt in self.stmts.statements:
-            stmt_df = FinStatementsBase.from_df(
+        stmt_dfs = {}
+        for stmt in self.stmts.statements.values():
+            stmt_df = StatementSeries.from_df(
                 all_results,
                 stmt.statement_name,
                 stmt.config.items,
                 disp_unextracted=False,
             )
-            stmt_dfs.append(stmt_df)
+            stmt_dfs[stmt.statement_name] = stmt_df
 
         # type ignore added because for some reason mypy is not picking up structure
         # correctly since it is a dataclass
@@ -126,7 +126,7 @@ class ForecastResolver(ResolverBase):
     @property
     def t_indexed_eqs(self) -> List[Eq]:
         config_managers = []
-        for stmt in self.stmts.statements:
+        for stmt in self.stmts.statements.values():
             config_managers.append(stmt.config.items)
         all_eqs = []
         for config_manage in config_managers:
@@ -198,6 +198,11 @@ class ForecastResolver(ResolverBase):
                     # period 0 is last historical period, not forecasted period
                     try:
                         value = getattr(self.stmts, key).iloc[-1]
+                        # sometimes the value (rhs) can be none. for example, if we have only ONE period in the history
+                        # and capex needs to periods in it's definition, then capex[0] will be none. 
+                        # we will not include it on the list.
+                        if value is None: 
+                            continue
                     except AttributeError as e:
                         if "_pct_" in str(e):
                             # Got a percentage of item, only in forecasted results, skip
@@ -216,6 +221,8 @@ class ForecastResolver(ResolverBase):
                         continue
                     value = series.iloc[period - 1]
                 subs_dict[lhs] = value
+            # print("def sympy_subs_dict")
+            # print(subs_dict)
         return subs_dict
 
     @property

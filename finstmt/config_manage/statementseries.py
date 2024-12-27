@@ -7,12 +7,12 @@ from sympy import IndexedBase
 from finstmt.config_manage.base import ConfigManagerBase
 from finstmt.config_manage.data import DataConfigManager
 from finstmt.exc import NoSuchItemException
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 from finstmt.logger import logger
 
 
 @dataclass
-class StatementConfigManager(ConfigManagerBase):
+class StatementSeriesConfigManager(ConfigManagerBase):
     """
     Used for entire single financial statement, e.g. income statement or balance sheet, with multiple dates in the
     statement.

@@ -70,9 +70,20 @@ class ForecastItemConfig:
             "Plug": self.plug,
         }
         out_dict.update(self.prophet_kwargs)
-        if self.manual_forecasts["levels"]:
+
+        # if self.manual_forecasts.type: 
+        #     out_dict.update({"Manual Type": self.manual_forecasts["type"]})     
+        #     if self.manual_forecasts.type == "levels": 
+        #         out_dict.update({"Manual Values": self.manual_forecasts["values"]})
+        #     if self.manual_forecasts.type == "growth":
+        #         growth_pcts = [
+        #             f"{growth:.2%}" for growth in self.manual_forecasts["growth"]
+        #         ]
+        #         out_dict.update({"Manual Values": growth_pcts})
+
+        if "levels" in self.manual_forecasts and self.manual_forecasts["levels"]: 
             out_dict.update({"Manual Levels": self.manual_forecasts["levels"]})
-        if self.manual_forecasts["growth"]:
+        if "growth" in self.manual_forecasts and self.manual_forecasts["growth"]:
             growth_pcts = [
                 f"{growth:.2%}" for growth in self.manual_forecasts["growth"]
             ]

@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from sympy import Eq, Idx, IndexedBase
 
-from finstmt.combined.statements import FinancialStatements
+from finstmt.findata.statements import FinancialStatements
 from finstmt.resolver.solve import get_solve_eqs_and_full_subs_dict
 
 

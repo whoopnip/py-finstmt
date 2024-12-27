@@ -8,25 +8,22 @@ from tqdm import tqdm
 
 from finstmt.check import item_series_is_empty
 from finstmt.config_manage.data import DataConfigManager, _key_pct_of_key
-from finstmt.config_manage.statement import StatementConfigManager
+from finstmt.config_manage.statementseries import StatementSeriesConfigManager
 from finstmt.exc import (
     CouldNotParseException,
     MixedFrequencyException,
     NoSuchItemException,
 )
-from finstmt.findata.period_data import PeriodFinancialData
+from finstmt.findata.statement_period_data import StatementPeriodData
+from finstmt.findata.statement_item_series import StatementItemSeries
 from finstmt.forecast.config import ForecastConfig
-from finstmt.forecast.main import Forecast
-from finstmt.items.config import ItemConfig
+from finstmt.forecast.forecast_item_series import ForecastItemSeries
+from finstmt.findata.item_config import ItemConfig
 from finstmt.logger import logger
 
-
-# TODO: Discuss what we think of renaming this something like FinStatementTimeSeries
-# or FinStatementPeriods
-# to emphasise this is a collection of homogeneous financial staements over time
 @dataclass
-class FinStatementsBase:
-    statements: Dict[pd.Timestamp, PeriodFinancialData]
+class StatementSeries:
+    statements: Dict[pd.Timestamp, StatementPeriodData]
     items_config_list: List[ItemConfig] = field(repr=False)
     statement_name: str
 
@@ -46,7 +43,7 @@ class FinStatementsBase:
         configs_dict = {}
         for date, statement in self.statements.items():
             configs_dict[date] = statement.config_manager
-        self.config = StatementConfigManager(configs_dict)
+        self.config = StatementSeriesConfigManager(configs_dict)
 
     def has_negative_time_index(self, symbols):
         for sym in symbols:
@@ -100,7 +97,7 @@ class FinStatementsBase:
     def _repr_html_(self):
         return self._formatted_df._repr_html_()
 
-    # Get times series for a statement item
+    # Get pd.Series with date index (aka times series) for a statement item
     def __getattr__(self, item):
         data_dict = {}
         for (
@@ -123,6 +120,11 @@ class FinStatementsBase:
             pass
         return pd.Series(
             data_dict, name=item_config.display_name if item_config else item
+        )
+
+    def get_statement_item_series(self, item_key: str) -> StatementItemSeries:
+        return StatementItemSeries(
+            series=getattr(self, item_key), item_config=self.config.get(item_key)
         )
 
     def __getitem__(self, item):
@@ -191,7 +193,7 @@ class FinStatementsBase:
 
         for col in dates:
             try:
-                statement = PeriodFinancialData.from_series(df[col], config_manager)
+                statement = StatementPeriodData.from_series(df[col], config_manager)
             except CouldNotParseException:
                 raise CouldNotParseException(
                     "Passed DataFrame did not have any statement items in the index. "
@@ -231,7 +233,7 @@ class FinStatementsBase:
 
     def _forecast(
         self, statements, **kwargs
-    ) -> Tuple[Dict[str, Forecast], Dict[str, pd.Series]]:
+    ) -> Tuple[Dict[str, ForecastItemSeries], Dict[str, pd.Series]]:
         if "freq" not in kwargs:
             freq = self.freq
             if freq is None:
@@ -245,7 +247,7 @@ class FinStatementsBase:
             ] = freq  # use historical frequency if desired frequency not passed
 
         forecast_config = ForecastConfig(**kwargs)
-        forecast_dict: Dict[str, Forecast] = {}
+        forecast_dict: Dict[str, ForecastItemSeries] = {}
         results: Dict[str, pd.Series] = {}
         logger.info(f"Forecasting {self.statement_name}")
         item: ItemConfig
@@ -260,7 +262,7 @@ class FinStatementsBase:
             if item.forecast_config.pct_of is not None:
                 pct_of_series = getattr(statements, item.forecast_config.pct_of)
                 pct_of_config = statements.config.get(item.forecast_config.pct_of)
-            forecast = Forecast(
+            forecast = ForecastItemSeries(
                 data,
                 forecast_config,
                 item.forecast_config,
@@ -296,7 +298,7 @@ class FinStatementsBase:
     def __add__(self, other):
         if isinstance(other, (float, int)):
             new_df = self.df + other
-        elif isinstance(other, FinStatementsBase):
+        elif isinstance(other, StatementSeries):
             new_df = combine_statement_dfs(
                 self.to_df(index_as_display_name=False),
                 other.to_df(index_as_display_name=False),
@@ -321,7 +323,7 @@ class FinStatementsBase:
     def __mul__(self, other):
         if isinstance(other, (float, int)):
             new_df = self.df * other
-        elif isinstance(other, FinStatementsBase):
+        elif isinstance(other, StatementSeries):
             new_df = combine_statement_dfs(self.df, other.df, operation=operator.mul)
         else:
             raise NotImplementedError(
@@ -339,7 +341,7 @@ class FinStatementsBase:
     def __sub__(self, other):
         if isinstance(other, (float, int)):
             new_df = self.df - other
-        elif isinstance(other, FinStatementsBase):
+        elif isinstance(other, StatementSeries):
             new_df = combine_statement_dfs(self.df, other.df, operation=operator.sub)
         else:
             raise NotImplementedError(
@@ -357,7 +359,7 @@ class FinStatementsBase:
     def __truediv__(self, other):
         if isinstance(other, (float, int)):
             new_df = self.df / other
-        elif isinstance(other, FinStatementsBase):
+        elif isinstance(other, StatementSeries):
             new_df = combine_statement_dfs(
                 self.df, other.df, operation=operator.truediv
             )
@@ -384,7 +386,7 @@ class FinStatementsBase:
         )
         return new_statements
 
-    def __round__(self, n=None) -> "FinStatementsBase":
+    def __round__(self, n=None) -> "StatementSeries":
         new_df = round(self.df, n)
         new_statements = type(self).from_df(
             new_df, self.statement_name, self.items_config_list, disp_unextracted=False

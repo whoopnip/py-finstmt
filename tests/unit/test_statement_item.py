@@ -1,9 +1,9 @@
 import numpy as np
 from sympy import nan
-from finstmt.combined.statements import FinancialStatements
+from finstmt.findata.statements import FinancialStatements
 from finstmt.findata.statement_item import StatementItem
-from finstmt.findata.statementsbase import FinStatementsBase
-from finstmt.items.config import ItemConfig
+from finstmt.findata.statement_series import StatementSeries
+from finstmt.findata.item_config import ItemConfig
 
 def test_seed_value_is_none():
     item_config = ItemConfig(
@@ -66,7 +66,7 @@ def test_default_value_for_non_calculated_field():
         }
     }
 
-    stmt_timeseries = FinStatementsBase.from_dict(dict, "Test Statment", config)
+    stmt_timeseries = StatementSeries.from_dict(dict, "Test Statment", config)
     finstmts = FinancialStatements([stmt_timeseries])
     assert finstmts.investments[0] == 0
 
@@ -90,7 +90,7 @@ def test_calculated_field():
         }
     }
 
-    stmt_timeseries = FinStatementsBase.from_dict(dict, "Test Statment", config)
+    stmt_timeseries = StatementSeries.from_dict(dict, "Test Statment", config)
     finstmts = FinancialStatements([stmt_timeseries])
     assert finstmts.equity[0] == 1000
 
@@ -119,7 +119,7 @@ def test_nested_calculated_fields():
         }
     }
 
-    stmt_timeseries = FinStatementsBase.from_dict(dict, "Test Statment", config)
+    stmt_timeseries = StatementSeries.from_dict(dict, "Test Statment", config)
     finstmts = FinancialStatements([stmt_timeseries])
     assert finstmts.equity[0] == 1000
 
@@ -149,7 +149,7 @@ def test_nested_calculated_fields_out_of_order():
         }
     }
 
-    stmt_timeseries = FinStatementsBase.from_dict(dict, "Test Statment", config)
+    stmt_timeseries = StatementSeries.from_dict(dict, "Test Statment", config)
     finstmts = FinancialStatements([stmt_timeseries])
     assert finstmts.equity[0] == 1000
 
@@ -176,7 +176,7 @@ def test_time_shift_calculated_field():
         },
     }
 
-    stmt_timeseries = FinStatementsBase.from_dict(dict, "Test Statment", config)
+    stmt_timeseries = StatementSeries.from_dict(dict, "Test Statment", config)
     finstmts = FinancialStatements([stmt_timeseries])
     print(type(finstmts.cashDelta[0]))
     assert np.isnan(finstmts.cashDelta[0])

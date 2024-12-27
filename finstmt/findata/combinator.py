@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Protocol, TypeVar
 from typing_extensions import TypeGuard
 
 if TYPE_CHECKING:
-    from finstmt.combined.statements import FinancialStatements
-    from finstmt.findata.statementsbase import FinStatementsBase
-    from finstmt.forecast.main import Forecast
+    from finstmt.findata.statements import FinancialStatements
+    from finstmt.findata.statement_series import StatementSeries
+    from finstmt.forecast.forecast_item_series import ForecastItemSeries
     from finstmt.forecast.statements import ForecastedFinancialStatements
 
 T = TypeVar("T")
@@ -101,19 +101,19 @@ def _apply_to_child_statements(
     statements: "FinancialStatements",
     other: Any,
     func: Callable[[Any, Any], Any],
-) -> List["FinStatementsBase"]:
+) -> List["StatementSeries"]:
     from finstmt import FinancialStatements
 
     if isinstance(other, (float, int)):
-        new_stmts = []
-        for statement in statements.statements:
+        new_stmts = {}
+        for statement in statements.statements.values():
             new_stmt = func(statement, other)
-            new_stmts.append(new_stmt)
+            new_stmts[new_stmt.statement_name] = new_stmt
     elif isinstance(other, FinancialStatements):
-        new_stmts = []
-        for left, right in zip(statements.statements, other.statements):
+        new_stmts = {}
+        for left, right in zip(statements.statements.values(), other.statements.values()):
             new_stmt = func(left, right)
-            new_stmts.append(new_stmt)
+            new_stmts[new_stmt.statement_name] = new_stmt
     else:
         raise NotImplementedError(
             f"cannot {func.__name__} type {type(statements)} to type {type(other)}"
@@ -123,10 +123,10 @@ def _apply_to_child_statements(
 
 
 def _apply_to_forecasts(
-    forecasts: Dict[str, "Forecast"],
+    forecasts: Dict[str, "ForecastItemSeries"],
     other: Any,
-    func: Callable[["Forecast", Any], "Forecast"],
-) -> Dict[str, "Forecast"]:
+    func: Callable[["ForecastItemSeries", Any], "ForecastItemSeries"],
+) -> Dict[str, "ForecastItemSeries"]:
     if isinstance(other, (float, int)):
         return {k: func(v, other) for k, v in forecasts.items()}
     elif _is_forecasted_financial_statements(other):

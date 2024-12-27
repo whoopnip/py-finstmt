@@ -5,7 +5,7 @@ from typing import Optional
 import numpy as np
 from sympy import Indexed, sympify
 
-from finstmt.items.config import ItemConfig
+from finstmt.findata.item_config import ItemConfig
 
 
 @dataclass
