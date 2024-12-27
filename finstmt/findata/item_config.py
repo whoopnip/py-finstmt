@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Optional, Sequence, TypeVar
 
 from typing_extensions import Self
 
-from finstmt.forecast.config import ForecastItemConfig
+from finstmt.findata.item_forecast_config import ForecastItemConfig
 
 T = TypeVar("T")
 

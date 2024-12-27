@@ -7,7 +7,8 @@ from pandas import DatetimeIndex
 from packaging import version
 
 from finstmt.exc import ForecastNotFitException, ForecastNotPredictedException
-from finstmt.forecast.config import ForecastConfig, ForecastItemConfig
+from finstmt.findata.item_forecast_config import ForecastItemConfig
+from finstmt.forecast.config import ForecastConfig
 from finstmt.forecast.plot import plot_forecast
 from finstmt.findata.item_config import ItemConfig
 

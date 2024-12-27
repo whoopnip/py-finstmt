@@ -3,7 +3,8 @@ from typing import Optional
 import pandas as pd
 
 from finstmt.exc import ImproperManualForecastException
-from finstmt.forecast.config import ForecastConfig, ForecastItemConfig
+from finstmt.findata.item_forecast_config import ForecastItemConfig
+from finstmt.forecast.config import ForecastConfig
 from finstmt.forecast.models.base import ForecastModel
 from finstmt.findata.item_config import ItemConfig
 

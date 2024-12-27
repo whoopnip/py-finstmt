@@ -4,7 +4,8 @@ from typing import Optional, Tuple
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from finstmt.forecast.config import ForecastConfig, ForecastItemConfig
+from finstmt.findata.item_forecast_config import ForecastItemConfig
+from finstmt.forecast.config import ForecastConfig
 from finstmt.forecast.dataframe import add_cap_and_floor_to_df
 from finstmt.forecast.models.base import ForecastModel
 from finstmt.findata.item_config import ItemConfig

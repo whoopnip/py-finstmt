@@ -1,6 +1,7 @@
 from typing import Type
 
-from finstmt.forecast.config import ForecastConfig, ForecastItemConfig
+from finstmt.findata.item_forecast_config import ForecastItemConfig
+from finstmt.forecast.config import ForecastConfig
 from finstmt.forecast.models.average import AverageModel
 from finstmt.forecast.models.base import ForecastModel
 from finstmt.forecast.models.cagr import CAGRModel

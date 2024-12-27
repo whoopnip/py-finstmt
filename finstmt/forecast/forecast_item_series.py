@@ -8,7 +8,8 @@ import pandas as pd
 from typing_extensions import Self
 
 from finstmt.exc import ForecastNotFitException, ForecastNotPredictedException
-from finstmt.forecast.config import ForecastConfig, ForecastItemConfig
+from finstmt.findata.item_forecast_config import ForecastItemConfig
+from finstmt.forecast.config import ForecastConfig
 from finstmt.forecast.models.chooser import get_model
 from finstmt.forecast.models.manual import ManualForecastModel
 from finstmt.findata.item_config import ItemConfig
