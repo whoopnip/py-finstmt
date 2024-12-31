@@ -4,7 +4,8 @@ import os
 from pathlib import Path
 
 from finstmt.findata.item_config import ItemConfig
-from finstmt.findata.item_forecast_config import ForecastConfig, ForecastItemConfig
+from finstmt.findata.item_forecast_config import ForecastItemConfig
+from finstmt.forecast.config import ForecastConfig
 from finstmt.config.config_loader import load_yaml_config
 
 @dataclass
