@@ -16,10 +16,9 @@ class ManualForecastModel(ForecastModel):
     def __init__(
         self,
         config: ForecastConfig,
-        forecast_item_config: ForecastItemConfig,
         item_config: ItemConfig,
     ):
-        super().__init__(config, forecast_item_config, item_config)
+        super().__init__(config, item_config)
         self._set_manual_forecasts()
         self._validate()
 
@@ -35,8 +34,8 @@ class ManualForecastModel(ForecastModel):
             )
 
     def _set_manual_forecasts(self):
-        self.forecast_type = self.forecast_item_config.manual_forecasts["type"]
-        self.forecast_values = self.forecast_item_config.manual_forecasts["values"]
+        self.forecast_type = self.item_config.forecast_config.manual_forecasts["type"]
+        self.forecast_values = self.item_config.forecast_config.manual_forecasts["values"]
 
     def fit(self, series: pd.Series):
         self.recent = series.iloc[-1]

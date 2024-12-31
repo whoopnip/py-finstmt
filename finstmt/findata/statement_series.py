@@ -265,7 +265,6 @@ class StatementSeries:
             forecast = ForecastItemSeries(
                 data,
                 forecast_config,
-                item.forecast_config,
                 item,
                 pct_of_series=pct_of_series,
                 pct_of_config=pct_of_config,

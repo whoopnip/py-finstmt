@@ -25,13 +25,12 @@ class ForecastItemSeries:
 
     orig_series: pd.Series
     config: ForecastConfig
-    forecast_item_config: ForecastItemConfig
     item_config: ItemConfig
     pct_of_series: Optional[pd.Series] = None
     pct_of_config: Optional[ItemConfig] = None
 
     def __post_init__(self):
-        self.model = get_model(self.config, self.forecast_item_config, self.item_config)
+        self.model = get_model(self.config, self.item_config)
 
     def fit(self):
         self.model.fit(self.series)
@@ -69,7 +68,7 @@ class ForecastItemSeries:
                 -1
             ]
 
-        self.forecast_item_config.method = "manual"
+        self.item_config.forecast_config.method = "manual"
 
         if adjustments is not None:
             if not isinstance(adjustments, dict) and len(adjustments) != len(values):
@@ -91,10 +90,10 @@ class ForecastItemSeries:
             for i, replace in replacements.items():
                 values[i] = replace
 
-        self.forecast_item_config.manual_forecasts["type"] = "levels" if use_levels else "growth"
-        self.forecast_item_config.manual_forecasts["values"] = list(values)
+        self.item_config.forecast_config.manual_forecasts["type"] = "levels" if use_levels else "growth"
+        self.item_config.forecast_config.manual_forecasts["values"] = list(values)
         self.model = ManualForecastModel(
-            self.config, self.forecast_item_config, self.item_config
+            self.config, self.item_config
         )
         self.model.fit(self.series)
         self.model.predict()

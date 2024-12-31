@@ -13,22 +13,22 @@ from finstmt.findata.item_config import ItemConfig
 
 
 def get_model(
-    config: ForecastConfig, forecast_item_config: ForecastItemConfig, item_config: ItemConfig
+    config: ForecastConfig, item_config: ItemConfig
 ) -> ForecastModel:
     model_class: Type[ForecastModel]
-    if forecast_item_config.method == "auto":
+    if item_config.forecast_config.method == "auto":
         model_class = FBProphetModel
-    elif forecast_item_config.method == "trend":
+    elif item_config.forecast_config.method == "trend":
         model_class = LinearTrendModel
-    elif forecast_item_config.method == "cagr":
+    elif item_config.forecast_config.method == "cagr":
         model_class = CAGRModel
-    elif forecast_item_config.method == "mean":
+    elif item_config.forecast_config.method == "mean":
         model_class = AverageModel
-    elif forecast_item_config.method == "recent":
+    elif item_config.forecast_config.method == "recent":
         model_class = RecentValueModel
-    elif forecast_item_config.method == "manual":
+    elif item_config.forecast_config.method == "manual":
         model_class = ManualForecastModel
     else:
-        raise NotImplementedError(f"need to implement method {forecast_item_config.method}")
+        raise NotImplementedError(f"need to implement method {item_config.forecast_config.method}")
 
-    return model_class(config, forecast_item_config, item_config)
+    return model_class(config, item_config)

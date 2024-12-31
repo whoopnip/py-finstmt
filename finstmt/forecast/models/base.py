@@ -22,11 +22,9 @@ class ForecastModel:
     def __init__(
         self,
         config: ForecastConfig,
-        forecast_item_config: ForecastItemConfig,
         item_config: ItemConfig,
     ):
         self.config = config
-        self.forecast_item_config = forecast_item_config
         self.item_config = item_config
         self.has_been_fit = False
         self.has_prediction = False
