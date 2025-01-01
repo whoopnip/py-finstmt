@@ -56,31 +56,12 @@ class ForecastResolver(ResolverBase):
         self.timeout = timeout
         self.balance = balance
 
-        for key, series in self.results.items():
-            print(key)
-            print(series)
-
         if balance:
             self.exclude_plugs = True
         else:
             self.exclude_plugs = False
 
         super().__init__(stmts)
-
-    @property 
-    def results(self) -> Dict[str, pd.Series]:
-        """Extract results from forecast dict"""
-        results = {}
-        for key, forecast_item in self.forecast_dict.items():
-            if forecast_item.item_config.forecast_config.pct_of is not None:
-                key_pct_of_key = _key_pct_of_key(
-                    key, 
-                    forecast_item.item_config.forecast_config.pct_of
-                )
-                results[key_pct_of_key] = forecast_item.result_pct
-            else:
-                results[key] = forecast_item.result
-        return results
 
     def resolve_balance_sheet(self):
         logger.info("Balancing balance sheet")
@@ -137,7 +118,7 @@ class ForecastResolver(ResolverBase):
 
         # type ignore added because for some reason mypy is not picking up structure
         # correctly since it is a dataclass
-        # obj = ForecastedFinancialStatements(inc_df, bs_df, forecasts=self.forecast_dict, calculate=False)  # type: ignore
+        # the forecasts passed are just used for plotting
         obj = ForecastedFinancialStatements(stmt_dfs, forecasts=self.forecast_dict, calculate=False)  # type: ignore
         return obj
 
@@ -198,7 +179,12 @@ class ForecastResolver(ResolverBase):
 
     @property
     def forecast_dates(self) -> pd.DatetimeIndex:
-        return list(self.results.values())[0].index
+        # return list(self.results.values())[0].index
+        forecast_item_series = list(self.forecast_dict.values())[0]
+        if forecast_item_series.result is not None:
+            return forecast_item_series.result.index
+        else:
+            return forecast_item_series.result_pct.index
 
     @property
     def sympy_subs_dict(self) -> Dict[IndexedBase, float]:
@@ -233,7 +219,11 @@ class ForecastResolver(ResolverBase):
                     if self.exclude_plugs and config.forecast_config.plug:
                         continue
                     try:
-                        series = self.results[key]
+                        # series = self.results[key]
+                        if config.forecast_config.pct_of:
+                            series = self.forecast_dict[config.key].result_pct
+                        else:
+                            series = self.forecast_dict[config.key].result
                     except KeyError:
                         # Must not be a forecasted item, probably calculated item
                         continue
@@ -271,7 +261,9 @@ class ForecastResolver(ResolverBase):
         x_arrs = []
         plug_keys = []
         for config in self.plug_configs:
-            x_arrs.append(self.results[config.key].values)
+            # x_arrs.append(self.results[config.key].values)
+            # switch to using ForecastItemResults because plug will never be a pct of item
+            x_arrs.append(self.forecast_dict[config.key].result)
             plug_keys.append(config.key)
         if len(x_arrs) == 0:  # No plugs
             return []

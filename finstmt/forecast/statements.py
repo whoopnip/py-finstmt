@@ -20,6 +20,7 @@ DEFAULT_HEIGHT_PER_ROW = 3
 
 @dataclass
 class ForecastedFinancialStatements(FinancialStatements):
+    # forecasts are just used for plotting
     forecasts: Dict[str, ForecastItemSeries] = field(default_factory=lambda: {})
 
     def __post_init__(self):
