@@ -259,12 +259,10 @@ class ForecastResolver(ResolverBase):
     @property
     def plug_x0(self) -> np.ndarray:
         x_arrs = []
-        plug_keys = []
         for config in self.plug_configs:
             # x_arrs.append(self.results[config.key].values)
             # switch to using ForecastItemResults because plug will never be a pct of item
             x_arrs.append(self.forecast_dict[config.key].result)
-            plug_keys.append(config.key)
         if len(x_arrs) == 0:  # No plugs
             return []
         x0 = np.concatenate(x_arrs) / PLUG_SCALE
