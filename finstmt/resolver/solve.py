@@ -46,6 +46,44 @@ def sympy_dict_to_results_dict(
 def results_dict_to_sympy_dict(
     results_dict: Dict[str, pd.Series], sympy_namespace: Dict[str, Expr]
 ) -> Dict[IndexedBase, float]:
+    """
+    Convert dictionary of pandas Series to SymPy symbolic expressions.
+    
+    Args:
+        results_dict: Dictionary mapping variable names to pandas Series
+        sympy_namespace: Dictionary of SymPy variables for symbolic conversion
+        
+    Returns:
+        Dictionary mapping indexed SymPy expressions to their values
+        
+    Example:
+        >>> import pandas as pd
+        >>> from sympy import IndexedBase
+        >>> 
+        >>> # Financial statement data
+        >>> financial_results = {
+        ...     'cash': pd.Series([100, 200, 300], name='Cash'),
+        ...     'debt': pd.Series([500, 600, 700], name='Total Debt')
+        ... }
+        >>> 
+        >>> # SymPy variable definitions
+        >>> sympy_variables = {
+        ...     'cash': IndexedBase('cash'),
+        ...     'debt': IndexedBase('debt')
+        ... }
+        >>> 
+        >>> # Convert to SymPy expressions
+        >>> sympy_expressions = results_dict_to_sympy_dict(financial_results, sympy_variables)
+        >>> # Results in:
+        >>> # {
+        >>> #     cash[1]: 100.0,
+        >>> #     cash[2]: 200.0, 
+        >>> #     cash[3]: 300.0,
+        >>> #     debt[1]: 500.0,
+        >>> #     debt[2]: 600.0,
+        >>> #     debt[3]: 700.0
+        >>> # }
+    """
     out_dict = {}
     for key, series in results_dict.items():
         arr = series.values
