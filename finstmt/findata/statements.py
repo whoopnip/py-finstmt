@@ -309,14 +309,12 @@ class FinancialStatements:
         self._validate_dates()
 
         all_forecast_dict = {}
-        all_results = {}
         for statement_series in self.statements.values():
-            forecast_dict, results = statement_series._forecast(self, **kwargs)
-            all_forecast_dict.update(forecast_dict)
-            all_results.update(results)
+            statement_forecast_dict = statement_series._forecast(self, **kwargs)
+            all_forecast_dict.update(statement_forecast_dict)
 
         resolver = ForecastResolver(
-            self, all_forecast_dict, all_results, bs_diff_max, timeout, balance=balance
+            self, all_forecast_dict, bs_diff_max, timeout, balance=balance
         )
 
         obj = resolver.to_statements()

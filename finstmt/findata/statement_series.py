@@ -233,7 +233,7 @@ class StatementSeries:
 
     def _forecast(
         self, statements, **kwargs
-    ) -> Tuple[Dict[str, ForecastItemSeries], Dict[str, pd.Series]]:
+    ) -> Dict[str, ForecastItemSeries]:
         if "freq" not in kwargs:
             freq = self.freq
             if freq is None:
@@ -248,7 +248,6 @@ class StatementSeries:
 
         forecast_config = ForecastConfig(**kwargs)
         forecast_dict: Dict[str, ForecastItemSeries] = {}
-        results: Dict[str, pd.Series] = {}
         logger.info(f"Forecasting {self.statement_name}")
         item: ItemConfig
         for item in tqdm(self.config.items):
@@ -272,15 +271,8 @@ class StatementSeries:
             forecast.fit()
             forecast.predict()
             forecast_dict[item.key] = forecast
-            if forecast.result is not None:
-                forecast.result.name = item.primary_name
-            if item.forecast_config.pct_of is not None:
-                key_pct_of_key = _key_pct_of_key(item.key, item.forecast_config.pct_of)
-                results[key_pct_of_key] = forecast.result
-            else:
-                results[item.key] = forecast.result
 
-        return forecast_dict, results
+        return forecast_dict
 
     @property
     def freq(self) -> str:

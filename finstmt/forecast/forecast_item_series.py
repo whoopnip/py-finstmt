@@ -28,6 +28,8 @@ class ForecastItemSeries:
     item_config: ItemConfig
     pct_of_series: Optional[pd.Series] = None
     pct_of_config: Optional[ItemConfig] = None
+    _result: Optional[pd.Series] = None  # Changed from result to _result
+    _result_pct: Optional[pd.Series] = None  # Changed from result_pct to _result_pct
 
     def __post_init__(self):
         self.model = get_model(self.config, self.item_config)
@@ -38,7 +40,18 @@ class ForecastItemSeries:
     def predict(self) -> pd.Series:
         if not self.model.has_been_fit:
             raise ForecastNotFitException("call .fit before .predict")
-        return self.model.predict()
+        result = self.model.predict()
+        
+        # if result is not None:
+        #     self._result.name = self.item_config.primary_name
+
+        # Handle percentage result if needed
+        if (self.item_config.forecast_config.pct_of is not None):
+            self._result_pct = result
+        else:                    # Store results
+            self._result = result
+                        
+        return result
 
     def plot(
         self, ax: Optional[plt.Axes] = None, figsize: Tuple[int, int] = (12, 5)
@@ -59,12 +72,12 @@ class ForecastItemSeries:
             )
 
         if use_levels:
-            values = self.result.values
+            values = self._result.values  # Changed from result to _result
         else:
             # Growth
-            values = self.result.pct_change().values
+            values = self._result.pct_change().values  # Changed from result to _result
             # Fill in first growth
-            values[0] = (self.result.iloc[0] - self.series.iloc[-1]) / self.series.iloc[
+            values[0] = (self._result.iloc[0] - self.series.iloc[-1]) / self.series.iloc[
                 -1
             ]
 
@@ -111,7 +124,13 @@ class ForecastItemSeries:
             raise ForecastNotPredictedException(
                 "call .fit then .predict before .result"
             )
-        return self.model.result
+        # return self.model.result
+        return self._result
+
+    @property
+    def result_pct(self) -> Optional[pd.Series]:
+        """Get percentage forecast result if applicable"""
+        return self._result_pct
 
     @property
     def name(self) -> str:

@@ -47,16 +47,18 @@ class ForecastResolver(ResolverBase):
         self,
         stmts: "FinancialStatements",
         forecast_dict: Dict[str, ForecastItemSeries],
-        results: Dict[str, pd.Series],
         bs_diff_max: float,
         timeout: float,
         balance: bool = True,
     ):
         self.forecast_dict = forecast_dict
-        self.results = results
         self.bs_diff_max = bs_diff_max
         self.timeout = timeout
         self.balance = balance
+
+        for key, series in self.results.items():
+            print(key)
+            print(series)
 
         if balance:
             self.exclude_plugs = True
@@ -64,6 +66,21 @@ class ForecastResolver(ResolverBase):
             self.exclude_plugs = False
 
         super().__init__(stmts)
+
+    @property 
+    def results(self) -> Dict[str, pd.Series]:
+        """Extract results from forecast dict"""
+        results = {}
+        for key, forecast_item in self.forecast_dict.items():
+            if forecast_item.item_config.forecast_config.pct_of is not None:
+                key_pct_of_key = _key_pct_of_key(
+                    key, 
+                    forecast_item.item_config.forecast_config.pct_of
+                )
+                results[key_pct_of_key] = forecast_item.result_pct
+            else:
+                results[key] = forecast_item.result
+        return results
 
     def resolve_balance_sheet(self):
         logger.info("Balancing balance sheet")
@@ -94,6 +111,7 @@ class ForecastResolver(ResolverBase):
             else:
                 solutions_dict = self.subs_dict
 
+        # print(solutions_dict)
         new_results = sympy_dict_to_results_dict(
             solutions_dict, self.forecast_dates, self.stmts.all_config_items, t_offset=1
         )
