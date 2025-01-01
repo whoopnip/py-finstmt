@@ -171,6 +171,37 @@ def _solve_eqs_with_plug_solutions(
 def _x_arr_to_plug_solutions(
     x: np.ndarray, plug_keys: Sequence[str], sympy_namespace: Dict[str, IndexedBase]
 ) -> Dict[IndexedBase, float]:
+    """
+    Convert array of plug values to a dictionary mapping SymPy expressions to values.
+
+    Args:
+        x: Array of plug values scaled down by PLUG_SCALE. Length should be number of plug_keys * number of periods
+        plug_keys: Keys identifying the plug variables, e.g. ['cash', 'debt']
+        sympy_namespace: Dictionary mapping variable names to SymPy IndexedBase objects
+
+    Returns:
+        Dictionary mapping SymPy indexed expressions to their values
+
+    Example:
+        >>> import numpy as np
+        >>> from sympy import IndexedBase
+        >>> x = np.array([1, 2, 3, 4, 5, 6])  # Values for two plug variables over 3 periods
+        >>> plug_keys = ['cash', 'debt']
+        >>> sympy_namespace = {
+        ...     'cash': IndexedBase('cash'),
+        ...     'debt': IndexedBase('debt')
+        ... }
+        >>> solutions = _x_arr_to_plug_solutions(x, plug_keys, sympy_namespace)
+        >>> # Results in (after multiplying by PLUG_SCALE):
+        >>> # {
+        >>> #    cash[1]: 1e11, 
+        >>> #    cash[2]: 2e11,
+        >>> #    cash[3]: 3e11,
+        >>> #    debt[1]: 4e11,
+        >>> #    debt[2]: 5e11, 
+        >>> #    debt[3]: 6e11
+        >>> # }
+    """
     x_arrs = np.split(x * PLUG_SCALE, len(plug_keys))
     plug_dict = {key: pd.Series(x_arrs[i]) for i, key in enumerate(plug_keys)}
     # TODO: Is Expr or IndexedBase the correct type?
