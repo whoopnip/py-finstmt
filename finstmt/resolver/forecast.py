@@ -157,6 +157,21 @@ class ForecastResolver(ResolverBase):
                 Eq(net_income[t], revenue[t] - expenses[t]),
                 Eq(cash[t], revenue[t] * cash_pct_revenue[t])
             ]
+            >>> # With use_average=True:
+            >>> stmts.config.items = [
+            ...     ItemConfig(
+            ...         key='interest',
+            ...         forecast_config=ForecastItemConfig(
+            ...             pct_of='debt',
+            ...             make_forecast=True,
+            ...             use_average=True
+            ...         )
+            ...     )
+            ... ]
+            >>> resolver.t_indexed_eqs
+            [
+                Eq(interest[t], interest_pct_debt[t] * (debt[t] + debt[t-1])/2)
+            ]
         """
         config_managers = []
         for stmt in self.stmts.statements.values():
@@ -176,8 +191,13 @@ class ForecastResolver(ResolverBase):
                     key_pct_of_key = _key_pct_of_key(
                         config.key, config.forecast_config.pct_of
                     )
+                    if config.forecast_config.use_average:
+                        # Use average of current and previous period
+                        base = f"({config.forecast_config.pct_of}[t] + {config.forecast_config.pct_of}[t-1])/2"
+                    else:
+                        base = f"{config.forecast_config.pct_of}[t]"
                     rhs = sympify(
-                        f"{config.forecast_config.pct_of}[t] * {key_pct_of_key}[t]",
+                        f"{base} * {key_pct_of_key}[t]",
                         locals=self.stmts.config.sympy_namespace,
                     )
                 else:
@@ -289,6 +309,12 @@ class ForecastResolver(ResolverBase):
                 key = _key_pct_of_key(config.key, config.forecast_config.pct_of)
             else:
                 key = config.key
+
+            ### THESE CHANGES WERE PROPOSED, BUT I DON'T THINK ARE NEEDED
+            # # Need to include t-1 periods for average calculations
+            # start_period = -1 if any(c.forecast_config.use_average for c in self.stmts.all_config_items) else 0
+            # for period in range(start_period, nper):
+
             for period in range(nper):
                 t_key = f"{key}[{period}]"
                 lhs = sympify(t_key, locals=self.stmts.config.sympy_namespace)
@@ -396,6 +422,64 @@ def resolve_balance_sheet(
     balance_groups: List[Set[str]],
     timeout: float,
 ) -> Dict[IndexedBase, float]:
+    """
+    Balance the financial statements by adjusting plug values until balance conditions are met.
+
+    Uses numerical optimization to find plug values that make all balance groups equal 
+    (e.g., assets = liabilities + equity). Tries to minimize the difference between balance
+    groups while maintaining all other financial relationships.
+
+    Args:
+        x0: Initial guess for plug values (scaled down by PLUG_SCALE)
+        eqs: System of equations defining financial relationships
+        plug_keys: Names of variables that can be adjusted to achieve balance
+        subs_dict: Known values for variables
+        forecast_dates: Dates for which forecasting is being done
+        config: Configuration manager containing financial statement structure
+        sympy_namespace: Dictionary mapping variable names to SymPy objects
+        bs_diff_max: Maximum allowed difference between balance groups
+        balance_groups: Groups of items that should be equal (e.g. [{'assets', 'liabilities_and_equity'}])
+        timeout: Maximum time in seconds to attempt balancing
+
+    Returns:
+        Dictionary mapping variables to their solved values
+
+    Raises:
+        BalanceSheetNotBalancedException: If balance cannot be achieved within constraints
+        InvalidBalancePlugsException: If plug configuration is invalid
+        InvalidForecastEquationException: If equations are inconsistent
+
+    Example:
+        >>> # Given initial conditions:
+        >>> x0 = np.array([1.0, 1.2])  # Initial guess for cash plug values
+        >>> eqs = [
+        ...     Eq(assets[1], cash[1] + fixed_assets[1]),
+        ...     Eq(liab_and_equity[1], debt[1] + equity[1])
+        ... ]
+        >>> plug_keys = ['cash', 'debt']  # Cash and debt can be adjusted
+        >>> subs_dict = {
+        ...     fixed_assets[1]: 1000,
+        ...     equity[1]: 800
+        ... }
+        >>> balance_groups = [{'assets', 'liab_and_equity'}]
+        >>> 
+        >>> # Resolve balance sheet
+        >>> solutions = resolve_balance_sheet(
+        ...     x0, eqs, plug_keys, subs_dict, dates, config, 
+        ...     namespace, bs_diff_max=1.0, balance_groups=balance_groups,
+        ...     timeout=30
+        ... )
+        >>> solutions
+        {
+            fixed_assets[1]: 1000,  # From subs_dict
+            equity[1]: 800,         # From subs_dict
+            cash[1]: 200,          # Solved plug value
+            debt[1]: 400,          # Solved plug value
+            assets[1]: 1200,       # Calculated: 200 + 1000
+            liab_and_equity[1]: 1200  # Calculated: 400 + 800
+        }
+        >>> # Note: assets = liabilities + equity (1200 = 1200)
+    """
     plug_solutions = _x_arr_to_plug_solutions(x0, plug_keys, sympy_namespace)
     all_to_solve: Dict[IndexedBase, Expr] = {}
     for eq in eqs:

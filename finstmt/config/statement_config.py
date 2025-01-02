@@ -34,9 +34,15 @@ def load_statement_configs(config_path: str = None) -> List[StatementConfig]:
     for stmt_config in config_data['statements']:
         items_config = []
         for item in stmt_config['items']:
+            # Default empty forecast config
             forecast_config = ForecastItemConfig()
+            
+            # If forecast config exists in YAML, create with those settings
             if 'forecast' in item:
-                forecast_config = ForecastItemConfig(**item['forecast'])
+                forecast_data = item['forecast']
+                # use_average defaults to False if not specified
+                forecast_data.setdefault('use_average', False)
+                forecast_config = ForecastItemConfig(**forecast_data)
             
             items_config.append(ItemConfig(
                 key=item['key'],

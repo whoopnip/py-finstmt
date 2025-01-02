@@ -24,6 +24,9 @@ class ForecastItemConfig:
     balance_item: Whether this item is balanced in the balancing process after forecasting
         and which item to balance it with (typically just set to 'total_liab_and_equity' for
         total assets and 'total_assets' for total liabilities and equity)
+    use_average: Whether to use average of pct_of item when calculating percentage relationships.
+                For example, if interest expense is set as percent of debt with use_average=True,
+                it will use (debt[t] + debt[t-1])/2 instead of just debt[t].
     """
 
     method: str = "cagr"
@@ -37,6 +40,7 @@ class ForecastItemConfig:
     )
     plug: bool = False
     balance_with: Optional[str] = None
+    use_average: bool = False  # New field
 
     def to_series(self) -> pd.Series:
         out_dict = {
@@ -45,6 +49,7 @@ class ForecastItemConfig:
             "Cap": self.cap,
             "Floor": self.floor,
             "Plug": self.plug,
+            "Use Average": self.use_average,  # Add to output
         }
         out_dict.update(self.prophet_kwargs)
 
