@@ -124,6 +124,40 @@ class ForecastResolver(ResolverBase):
 
     @property
     def t_indexed_eqs(self) -> List[Eq]:
+        """
+        Generate time-indexed equations for each calculated financial statement item.
+        
+        Returns a list of SymPy equations where variables are indexed with 't' to 
+        represent time periods. For each calculated item, generates either:
+        1. The equation defined in expr_str if it exists
+        2. A percentage equation if pct_of is defined and make_forecast is True
+        3. The identity equation (lhs = lhs) otherwise
+
+        Returns:
+            List[Eq]: List of SymPy equations with time index 't'
+
+        Examples:
+            >>> # Given configuration:
+            >>> stmts.config.items = [
+            ...     ItemConfig(
+            ...         key='net_income',
+            ...         expr_str='revenue[t] - expenses[t]'
+            ...     ),
+            ...     ItemConfig(
+            ...         key='cash',
+            ...         forecast_config=ForecastItemConfig(
+            ...             pct_of='revenue',
+            ...             make_forecast=True
+            ...         )
+            ...     )
+            ... ]
+            >>> resolver = ForecastResolver(stmts, forecast_dict, bs_diff_max=1000, timeout=180)
+            >>> resolver.t_indexed_eqs
+            [
+                Eq(net_income[t], revenue[t] - expenses[t]),
+                Eq(cash[t], revenue[t] * cash_pct_revenue[t])
+            ]
+        """
         config_managers = []
         for stmt in self.stmts.statements.values():
             config_managers.append(stmt.config.items)
@@ -155,6 +189,28 @@ class ForecastResolver(ResolverBase):
 
     @property
     def all_eqs(self) -> List[Eq]:
+        """
+        Generates concrete equations for all time periods by substituting actual time values.
+        
+        Takes the time-indexed equations from t_indexed_eqs and creates specific equations
+        for each forecast period by substituting actual period numbers for 't'. Also handles
+        plug values and updates equations based on hardcoded/known values.
+
+        Returns:
+            List[Eq]: List of SymPy equations with concrete time values
+
+        Examples:
+            >>> # Given t_indexed_eqs with one equation:
+            >>> # [Eq(net_income[t], revenue[t] - expenses[t])]
+            >>> # And 2 forecast periods:
+            >>> resolver.all_eqs
+            [
+                Eq(net_income[1], revenue[1] - expenses[1]),
+                Eq(net_income[2], revenue[2] - expenses[2])
+            ]
+            >>> # Note: Original equation was expanded into 2 equations,
+            >>> # one for each forecast period with t=1 and t=2
+        """
         t_eqs = self.t_indexed_eqs
         out_eqs = []
         # Starting from 1 as 0 is last historical period, no need to calculate
@@ -188,6 +244,44 @@ class ForecastResolver(ResolverBase):
 
     @property
     def sympy_subs_dict(self) -> Dict[IndexedBase, float]:
+        """
+        Creates a dictionary mapping SymPy indexed expressions to their known values.
+
+        For period 0 (last historical period), gets values from historical data.
+        For periods 1+ (forecast periods), gets values from forecast results if available.
+        Handles both direct values and percentage-based forecasts.
+
+        Returns:
+            Dict[IndexedBase, float]: Dictionary mapping expressions like 'revenue[1]' to values
+
+        Examples:
+            >>> # Given:
+            >>> # - Last historical: revenue=1000, cash=100
+            >>> # - Forecasted: revenue=[1100, 1200]
+            >>> # - Cash is forecast as % of revenue at 12%
+            >>> stmts.config.items = [
+            ...     ItemConfig(key='revenue'),
+            ...     ItemConfig(
+            ...         key='cash',
+            ...         forecast_config=ForecastItemConfig(
+            ...             pct_of='revenue',
+            ...             make_forecast=True
+            ...         )
+            ...     )
+            ... ]
+            >>> resolver.sympy_subs_dict
+            {
+                revenue[0]: 1000.0,     # Historical value
+                revenue[1]: 1100.0,     # Forecasted value
+                revenue[2]: 1200.0,     # Forecasted value
+                cash[0]: 100.0,         # Historical value 
+                cash_pct_revenue[1]: 0.12,  # Forecasted percentage
+                cash_pct_revenue[2]: 0.12   # Forecasted percentage
+            }
+            >>> # Note: cash[1] and cash[2] will be calculated as:
+            >>> # cash[1] = revenue[1] * cash_pct_revenue[1] = 1100 * 0.12 = 132
+            >>> # cash[2] = revenue[2] * cash_pct_revenue[2] = 1200 * 0.12 = 144
+        """
         nper = self.num_periods
         subs_dict = {}
         for config in self.stmts.all_config_items:

@@ -97,6 +97,61 @@ def results_dict_to_sympy_dict(
 def get_solve_eqs_and_full_subs_dict(
     eqs_for_sub: List[Eq], subs_dict: Dict[IndexedBase, float]
 ) -> Tuple[List[Eq], Dict[IndexedBase, float]]:
+    """
+    Iteratively substitute known values and solve equations until no more progress can be made.
+
+    Takes a list of equations and dictionary of known values, then:
+    1. Substitutes known values into equations
+    2. If an equation becomes fully solved (RHS has no symbols), adds it to solutions
+    3. Uses new solutions to substitute in remaining equations
+    4. Repeats until no more equations can be solved
+
+    Args:
+        eqs_for_sub: List of SymPy equations to solve/substitute
+        subs_dict: Dictionary mapping variables to their known values
+
+    Returns:
+        Tuple containing:
+        - List[Eq]: Remaining unsolved equations after substitution
+        - Dict[IndexedBase, float]: Updated dictionary with all solved values
+
+    Examples:
+        >>> # Example 1: Fully solvable system
+        >>> eqs = [
+        ...     Eq(revenue[1], 1000),              # Known revenue
+        ...     Eq(costs[1], revenue[1] * 0.6),    # Costs are 60% of revenue
+        ...     Eq(profit[1], revenue[1] - costs[1])  # Profit equation
+        ... ]
+        >>> known_vals = {revenue[1]: 1000}
+        >>> remaining_eqs, solutions = get_solve_eqs_and_full_subs_dict(eqs, known_vals)
+        >>> solutions
+        {
+            revenue[1]: 1000,    # Original known value
+            costs[1]: 600,       # Solved: 1000 * 0.6
+            profit[1]: 400       # Solved: 1000 - 600
+        }
+        >>> remaining_eqs
+        []  # All equations were solved
+
+        >>> # Example 2: Partially solvable system
+        >>> eqs = [
+        ...     Eq(costs[1], revenue[1] * 0.6),    # Costs are 60% of revenue
+        ...     Eq(profit[1], revenue[1] - costs[1]),  # Profit equation
+        ...     Eq(cash[1], profit[1] * cash_ratio[1])  # Cash is ratio of profit
+        ... ]
+        >>> known_vals = {revenue[1]: 1000}
+        >>> remaining_eqs, solutions = get_solve_eqs_and_full_subs_dict(eqs, known_vals)
+        >>> solutions
+        {
+            revenue[1]: 1000,    # Original known value
+            costs[1]: 600,       # Solved: 1000 * 0.6
+            profit[1]: 400       # Solved: 1000 - 600
+        }
+        >>> remaining_eqs
+        [
+            Eq(cash[1], 400 * cash_ratio[1])  # Still contains unknown cash_ratio
+        ]
+    """
     subbed_eqs = []
     subs_dict = subs_dict.copy()
     finished = False
